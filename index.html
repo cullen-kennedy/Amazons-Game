@@ -3,9 +3,25 @@
   <head>
     <title>AMAZON</title>
     <link rel="stylesheet" href="main.css" />
+    
   </head>
   <body>
+    <div id="menu">
+      <h1>Start a Game
+        <input type="text" name="name" id="nameNew" placeholder="Enter your name" required>
+        <button id="new">New Game</button>
+      </h1>
+      <h1>Join a Game
+        <input type="text" name="name" id="nameJoin" placeholder="Enter your name" required>
+        <input type="text" name="room" id="room" placeholder="Enter Game ID" required>
+        <button id="join">Join Game</button>
+      </h2>
+    </div>
     <canvas id="canvas"></canvas>
-    <script src="bundle.js"></script>
+    <p id="message"></p>
+    <script type="application/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script type="application/javascript" src="http://localhost:5000/socket.io/socket.io.js"></script>
+    <script type="application/javascript" src="/dist/main.js"></script>
+    
   </body>
 </html>
