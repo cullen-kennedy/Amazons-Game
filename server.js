@@ -43,6 +43,22 @@ io.on('connection', function(socket) {
        
     });
 
+    socket.on('playersMove', function(data) {
+        socket.broadcast.to(data.room).emit('oppMove', {
+            row: data.row,
+            col: data.col,
+            room: data.room
+        });
+    });
+
+    socket.on('playersShoot', function(data) {
+        socket.broadcast.to(data.room).emit('oppShoot', {
+            row: data.row,
+            col: data.col,
+            room: data.room
+        });
+    });
+
 });
 
 server.listen(5000, function() {

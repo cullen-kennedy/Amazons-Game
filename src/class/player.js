@@ -1,6 +1,15 @@
+/**
+ * This class is mostly for player identifying variables for now
+ */
+
 export default class player {
-    constructor(name, startx, starty, opy, opx)
+    constructor(name, startx, starty, opy, opx, colour, oppcolour, turn)
     {
+        this.myTurnStart = turn;
+        this.myTurnEnd = false;
+        this.myShoot = false;
+        this.colour = colour;
+        this.oppcolour = oppcolour;
         this.name = name;
         this.stageProps = {
             size:500,
@@ -18,27 +27,6 @@ export default class player {
             "col": opx
         };
            
-    }
-
-    default(ctx)
-    {
-        ctx.fillRect(this.piece.row * this.stageProps.block_size, this.piece.col * this.stageProps.block_size, this.stageProps.block_size, this.stageProps.block_size);
-    }
-
-
-    move(ctx, gx, gy)
-    {
-        this.piece.move(ctx, gx, gy);
-    }
-
-    shoot(ctx, x, y)
-    {
-        this.piece.move(ctx, 3, 4);
-    }
-
-    getPosition()
-    {
-        return this.piece.getPiece();
     }
 
 }
