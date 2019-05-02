@@ -14,14 +14,14 @@ app.get('/', function (request, response) {
     response.sendFile(path.join(__dirname, 'index.html'));
 });
 
-io.on('connection', function(socket) {
+io.on('connection', (socket) => {
     
-    socket.on('createGame', function(data) {
+    socket.on('createGame', (data) => {
         socket.join('room-' + ++rooms);
         socket.emit('newGame', {name: data.name, room: 'room-' + rooms})
     });
 
-    socket.on('joinGame', function(data) {
+    socket.on('joinGame', (data) => {
         var room = io.nsps['/'].adapter.rooms[data.room];
         if ( room && room.length == 1) {
             socket.join(data.room);
@@ -33,31 +33,22 @@ io.on('connection', function(socket) {
         }
     });
 
-    socket.on('default', function(data) {
-
-        socket.broadcast.to(data.room).emit('oppDefault', {
-            row: data.row,
-            col: data.col,
-            room: data.room
-        });
-       
-    });
-
-    socket.on('playersMove', function(data) {
+    socket.on('playersMove', (data) => {
         socket.broadcast.to(data.room).emit('oppMove', {
-            row: data.row,
-            col: data.col,
-            room: data.room
+            selID: data.selID,
+            row: data.newrow,
+            col: data.newcol,
         });
     });
 
-    socket.on('playersShoot', function(data) {
+    socket.on('playersShoot', (data) => {
         socket.broadcast.to(data.room).emit('oppShoot', {
             row: data.row,
             col: data.col,
             room: data.room
         });
     });
+
 
 });
 
