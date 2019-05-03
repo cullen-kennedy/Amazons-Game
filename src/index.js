@@ -185,8 +185,6 @@ function processClick(x, y) {
 
     function processMoveStart(x, y) {
 
-        console.log(game.board[y][x]);
-
         if (player.pieces.has(game.board[y][x]))
         {
             player.selection.ID = game.board[y][x];
@@ -202,7 +200,8 @@ function processClick(x, y) {
 
     function processMoveEnd(x, y) {
 
-        if (game.moveEnd(player, x, y) == true){
+        //CheckPath starts at the original place
+        if (game.checkPath(player.selection.col, player.selection.row).includes(x + (y*10)) && game.moveEnd(player, x, y) == true){
             //Replace these next two lines with a function
             canvas.ctx.fillStyle = 'white';
             canvas.ctx.fillRect(player.selection.col * 50, player.selection.row * 50, 50, 50);
@@ -215,7 +214,9 @@ function processClick(x, y) {
     }
             
     function processShoot(x, y) {
-        if (game.shoot(x, y) == true){
+        
+        //checkpath starts at the new player piece position
+        if (game.checkPath(player.pieces.get(player.selection.ID).col, player.pieces.get(player.selection.ID).row).includes(x + (y * 10)) && game.shoot(x, y) == true){
             board.shoot(canvas.ctx, x, y);
             return true;
         } else 

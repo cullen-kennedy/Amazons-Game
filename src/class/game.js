@@ -95,4 +95,79 @@ export default class game {
         this.board[y][x] = this.arrow;
     }
 
+    /**
+     * 
+     * Checks path for move and shoot, and returns an array of available positions
+     * The calling function, using x and y
+     * checks if it exists in the returned array
+     * 
+     */
+    checkPath(x, y) {
+        let validMoves = [];
+       
+        let sel = x + (y*10);
+
+        //First up
+        let up = sel - 10; 
+        while(up >= 0 && this.board[(~~(up/10))][up % 10] == 0) {
+            validMoves.push(up);
+            up -= 10;
+        }
+
+        //Then down
+        let down = sel + 10; 
+        while(down <= 99 && this.board[(~~(down/10))][down % 10] == 0) {
+            validMoves.push(down);
+            down += 10;
+        }
+
+        //yadda yadda
+        let right = sel + 1;
+        while((right % 10 != 0) && this.board[(~~(right/10))][right % 10] == 0) {
+            validMoves.push(right);
+            right++;
+        }
+
+        let left = sel - 1;
+        while((left % 10 != 9) && this.board[(~~(left/10))][left % 10] == 0) {
+            validMoves.push(left);
+            left--;
+        }
+
+        let upleftx = x-1;
+        let uplefty = y-1;
+        while (upleftx-1 >= 0 && uplefty >= 0 && this.board[uplefty][upleftx] == 0) {
+            validMoves.push(upleftx + (uplefty * 10));
+            upleftx--;
+            uplefty--;
+        }
+
+
+        let uprightx = x+1;
+        let uprighty = y-1;
+        while (uprightx-1 <= 9  && uprighty >= 0 && this.board[uprighty][uprightx] == 0) {
+            validMoves.push(uprightx + (uprighty * 10));
+            uprightx++;
+            uprighty--;
+        }
+
+        let downleftx = x-1;
+        let downlefty = y+1;
+        while (downleftx-1 >= 0  && downlefty <= 9 && this.board[downlefty][downleftx] == 0) {
+            validMoves.push(downleftx + (downlefty * 10));
+            downleftx--;
+            downlefty++;
+        }
+
+        let downrightx = x+1;
+        let downrighty = y+1;
+        while (downrightx-1 <= 9  && downrighty <= 9 && this.board[downrighty][downrightx] == 0) {
+            validMoves.push(downrightx + (downrighty * 10));
+            downrightx++;
+            downrighty++;
+        }
+
+        return validMoves;
+    }
+
 } 
