@@ -23,9 +23,11 @@ $('#new').on('click', () => {
 //It passes back the name of the player and the room name that was created
 socket.on('newGame', (data) => {
     
-    game = new Game(data.room);
-    board = new Board(data.room);
+    game = new Game(data.room, player);
+    board = new Board(data.room, player);
     player.setup(game.player1IDs, game.player1Pos, game.player2IDs, game.player2Pos);
+   
+
     
     board.displayBoard(canvas.ctx);
     document.getElementById("message").innerHTML = data.room + ' ' + player.name + ' ' + player.myTurnStart;  
@@ -38,8 +40,8 @@ socket.on ('player1', (data) => {
     const message = 'Hello, player1';
     
     //Default value are hardcoded in game and player class
-    board.default(canvas.ctx, player);
-    board.oppDefault(canvas.ctx, player);
+    board.default(canvas.ctx);
+    board.oppDefault(canvas.ctx);
 
     canvas.canvas.addEventListener('click', (e) => {       
         processClick(e.clientX, e.clientY);
@@ -64,23 +66,14 @@ $('#join').on('click', () => {
 socket.on ('player2', (data) => {
     const message = 'Hello, player2';
    
-
-    game = new Game(data.room);
-    board = new Board(data.room);
+    game = new Game(data.room, player);
+    board = new Board(data.room, player);
     player.setup(game.player2IDs, game.player2Pos, game.player1IDs, game.player1Pos);
     
     document.getElementById("message").innerHTML = data.room;
     board.displayBoard(canvas.ctx);
-    board.default(canvas.ctx, player);
-    board.oppDefault(canvas.ctx, player);
-   
-    /*
-    socket.emit('default', {
-        row: player.piece.row,
-        col: player.piece.col,
-        room: data.room
-    });
-    */
+    board.default(canvas.ctx);
+    board.oppDefault(canvas.ctx);
 
     canvas.canvas.addEventListener('click', (e)=> {       
         processClick(e.clientX, e.clientY);
@@ -103,8 +96,8 @@ socket.on('oppMove', (data) => {
     console.log('oppmove');
     canvas.ctx.fillStyle = 'white';
     canvas.ctx.fillRect(player.oppPieces.get(data.selID).col * 50, player.oppPieces.get(data.selID).row * 50, 50, 50);
-    game.oppMove(player, data.selID, data.col, data.row)
-    board.oppMove(canvas.ctx, player, data.col, data.row);
+    game.oppMove(data.selID, data.col, data.row)
+    board.oppMove(canvas.ctx, data.col, data.row);
     
 });
 
@@ -190,7 +183,7 @@ function processClick(x, y) {
             player.selection.ID = game.board[y][x];
             player.selection.row = y;
             player.selection.col = x;
-            board.moveStart(canvas.ctx, player);
+            board.moveStart(canvas.ctx);
             return true;
         }
         else{
@@ -201,11 +194,11 @@ function processClick(x, y) {
     function processMoveEnd(x, y) {
 
         //CheckPath starts at the original place
-        if (game.checkPath(player.selection.col, player.selection.row).includes(x + (y*10)) && game.moveEnd(player, x, y) == true){
+        if (game.checkPath(player.selection.col, player.selection.row).includes(x + (y*10)) && game.moveEnd(x, y) == true){
             //Replace these next two lines with a function
             canvas.ctx.fillStyle = 'white';
             canvas.ctx.fillRect(player.selection.col * 50, player.selection.row * 50, 50, 50);
-            board.moveEnd(canvas.ctx, player, x, y);
+            board.moveEnd(canvas.ctx, x, y);
             return true;
         }
         else {

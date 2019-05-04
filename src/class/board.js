@@ -4,8 +4,9 @@
 
 export default class board {
 
-    constructor(room) {
+    constructor(room, player) {
         this.room = room;
+        this.player = player;
         this.stageProps = {
             size:500,
             num_rows:10,
@@ -15,7 +16,6 @@ export default class board {
     }
 
     displayBoard(ctx) {
-
         for(var r = 0; r < this.stageProps.num_rows; r++)
         {
             for (var b = 0; b < this.stageProps.num_rows; b++)
@@ -24,36 +24,31 @@ export default class board {
             }
         }
     }
-/**
- * Note:
- * Most of these functions only use player.colour or oppcolour 
- * from the player object. Change it.
- */
 
-    default(ctx, player) {
-        ctx.fillStyle = player.colour;
-            player.pieces.forEach((value) =>{
+    default(ctx) {
+        ctx.fillStyle = this.player.colour;
+            this.player.pieces.forEach((value) =>{
                 console.log('default');
                 ctx.fillRect(value.col * this.stageProps.block_size, value.row * this.stageProps.block_size, this.stageProps.block_size, this.stageProps.block_size);
             });
     }
 
-    oppDefault(ctx, player) {
-        ctx.fillStyle = player.oppColour;
-            player.oppPieces.forEach((value) =>{
+    oppDefault(ctx) {
+        ctx.fillStyle = this.player.oppColour;
+            this.player.oppPieces.forEach((value) =>{
                 console.log('oppDefault');
                 ctx.fillRect(value.col * this.stageProps.block_size, value.row * this.stageProps.block_size, this.stageProps.block_size, this.stageProps.block_size);
             });
     }
 
-    moveStart(ctx, player) {
+    moveStart(ctx) {
         console.log("movestart");
         ctx.fillStyle = 'green';
-        ctx.fillRect(player.selection.col * this.stageProps.block_size, player.selection.row * this.stageProps.block_size, this.stageProps.block_size, this.stageProps.block_size);
+        ctx.fillRect(this.player.selection.col * this.stageProps.block_size, this.player.selection.row * this.stageProps.block_size, this.stageProps.block_size, this.stageProps.block_size);
     }
 
-    moveEnd(ctx, player, x, y) {
-        ctx.fillStyle = player.colour;
+    moveEnd(ctx, x, y) {
+        ctx.fillStyle = this.player.colour;
         ctx.fillRect(x * this.stageProps.block_size, y * this.stageProps.block_size, this.stageProps.block_size, this.stageProps.block_size);
     }
 
@@ -63,8 +58,8 @@ export default class board {
     }
 
 
-    oppMove(ctx, player, x, y) {
-       ctx.fillStyle = player.oppColour;
+    oppMove(ctx, x, y) {
+       ctx.fillStyle = this.player.oppColour;
        ctx.fillRect(x * this.stageProps.block_size, y * this.stageProps.block_size, this.stageProps.block_size, this.stageProps.block_size);
     }
 
@@ -72,8 +67,5 @@ export default class board {
         ctx.fillStyle = 'black';
         ctx.fillRect(x * this.stageProps.block_size, y * this.stageProps.block_size, this.stageProps.block_size, this.stageProps.block_size);
     }
-
-
-    
 
 }

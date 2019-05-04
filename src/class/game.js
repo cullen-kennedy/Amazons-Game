@@ -3,10 +3,11 @@
  */
 
 export default class game {
-    constructor(roomId) {
+    constructor(roomId, player) {
         this.roomID = roomId;
         this.empty = 0;
         this.arrow = 9;
+        this.player = player;
         this.player1IDs = [1,2,3,4];
         this.player2IDs = [5,6,7,8];
         this.player1Pos = [
@@ -62,20 +63,20 @@ export default class game {
         this.moves = 0;
     } 
 
-    moveEnd(player, x, y) {
+    moveEnd(x, y) {
         if (this.board[y][x] == this.empty){
-            this.board[player.selection.row][player.selection.col] = 0;
-            player.pieces.set(player.selection.ID, {row:y, col:x});
-            this.board[y][x] = player.selection.ID;
+            this.board[this.player.selection.row][this.player.selection.col] = 0;
+            this.player.pieces.set(this.player.selection.ID, {row:y, col:x});
+            this.board[y][x] = this.player.selection.ID;
             return true
         } else {
             return false
         }       
     }
 
-    oppMove(player, ID, x, y) {
-        this.board[player.oppPieces.get(ID).row][player.oppPieces.get(ID).col] = 0;
-        player.oppPieces.set(ID, {row:y, col:x});
+    oppMove(ID, x, y) {
+        this.board[this.player.oppPieces.get(ID).row][this.player.oppPieces.get(ID).col] = 0;
+        this.player.oppPieces.set(ID, {row:y, col:x});
         this.board[y][x] = ID;
     }
 
