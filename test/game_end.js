@@ -1,16 +1,16 @@
 
 //9s represent arrows
 var board = [
-  [0,1,0,0,0,3,0,0,0,0],
-  [0,0,0,0,0,0,0,0,0,0],
-  [0,0,0,0,0,4,0,0,0,0],
-  [0,0,2,0,0,0,0,0,0,0],
+  [1,2,3,4,9,9,0,0,0,0],
   [9,9,9,9,9,9,9,9,9,9],
-  [0,0,0,0,0,0,0,0,0,0],
-  [0,0,0,0,0,0,0,0,0,0],
-  [8,0,0,0,5,0,0,7,0,0],
-  [0,6,0,0,0,0,0,0,0,0],
-  [0,0,0,0,0,0,0,0,0,0]
+  [0,0,9,0,9,0,0,0,0,0],
+  [0,0,9,9,9,0,0,0,0,0],
+  [9,9,9,0,0,0,0,0,0,0],
+  [0,9,0,0,0,0,0,0,0,0],
+  [0,9,9,0,0,0,0,0,0,0],
+  [8,9,9,0,5,0,0,7,0,0],
+  [0,6,9,0,0,0,0,0,0,0],
+  [0,9,9,0,0,0,0,0,0,0]
 ];
 
 const player = new Map();
@@ -20,6 +20,7 @@ pieces();
 
 if (gameOver()) {
     console.log('game over!')
+	count();
 }
 else 
     console.log('game not over!');        
@@ -38,12 +39,11 @@ function pieces() {
             }
         }
     }
-    console.log(player)
-    console.log(opp)
+
 }
 
 /** 
- * We keep the player ids the same and count them as territory
+ * We inverse the player ids and count them as visited territory
  * If an empty space is met, the inverse of the id is filled in 
  * If an opponent ID is met, quit, game isn't over 
  *
@@ -56,13 +56,18 @@ function gameOver() {
             return false;
         }
     }
+	console.log(board);
     return true;
 }
     
 function forestFire(value, place) {
   
     let queue = [];
+	let visited = [];
     queue.push(value);
+	let count = 0;
+	
+	board[value.row][value.col] = place;
 
     while (queue.length != 0) {
  
@@ -72,7 +77,7 @@ function forestFire(value, place) {
             if (opp.has(board[n.row][n.col+1])) {
                 return false;
             }else if (player.has(board[n.row][n.col+1]) || board[n.row][n.col+1] == 0) {
-                board[n.row][n.col+1] = player.has(board[n.row][n.col+1]) ? board[n.row][n.col+1] : place;
+                board[n.row][n.col+1] = place;
                 queue.push({row: n.row, col: n.col+1 })
             }
         }
@@ -80,7 +85,7 @@ function forestFire(value, place) {
             if (opp.has(board[n.row][n.col-1])) {
                 return false;
             }else if (player.has(board[n.row][n.col-1]) || board[n.row][n.col-1] == 0) {
-                board[n.row][n.col-1] = player.has(board[n.row][n.col-1]) ? board[n.row][n.col-1] : place;
+                board[n.row][n.col-1] = place;
                 queue.push({row: n.row, col: n.col-1 })
             }
         }
@@ -88,7 +93,7 @@ function forestFire(value, place) {
             if (opp.has(board[n.row+1][n.col])) {
                 return false;
             }else if (player.has(board[n.row+1][n.col]) || board[n.row+1][n.col] == 0) {
-                board[n.row+1][n.col] = player.has(board[n.row+1][n.col]) ? board[n.row+1][n.col] : place;
+                board[n.row+1][n.col] = place;
                 queue.push({row: n.row+1, col: n.col })
             }
         }
@@ -96,7 +101,7 @@ function forestFire(value, place) {
             if (opp.has(board[n.row-1][n.col])){
                 return false;
             }else if (player.has(board[n.row-1][n.col]) || board[n.row-1][n.col] == 0) {
-                board[n.row-1][n.col] = player.has(board[n.row-1][n.col]) ? board[n.row-1][n.col] : place;
+                board[n.row-1][n.col] = place;
                 queue.push({row: n.row-1, col: n.col })
             }
         }
@@ -104,36 +109,58 @@ function forestFire(value, place) {
             if (opp.has(board[n.row-1][n.col-1])) {
                 return false;
             } else if (player.has(board[n.row-1][n.col-1]) || board[n.row-1][n.col-1] == 0) {
-                board[n.row-1][n.col-1] = player.has(board[n.row-1][n.col-1]) ? board[n.row-1][n.col-1] : place;
+                board[n.row-1][n.col-1] = place;
                 queue.push({row: n.row-1, col: n.col-1 })
             }  
         }
         if ((n.row+1 < 10 && n.col+1 < 10)){
             if (opp.has(board[n.row+1][n.col+1])) {
                 return false;
-            }else if ((player.has(board[n.row+1][n.col+1]) || board[n.row+1][n.col+1] == 0)) {
-                board[n.row+1][n.col+1] = player.has(board[n.row+1][n.col+1]) ? board[n.row+1][n.col+1] : place;
+            }else if (player.has(board[n.row+1][n.col+1]) || board[n.row+1][n.col+1] == 0) {
+                board[n.row+1][n.col+1] = place;
                 queue.push({row: n.row+1, col: n.col+1 })
             }
         }
         if ((n.row+1 < 10 && n.col-1 >=0)){
             if (opp.has(board[n.row+1][n.col-1])) {
                 return false;
-            }else if ((player.has(board[n.row+1][n.col-1]) || board[n.row+1][n.col-1] == 0)) {
-                board[n.row+1][n.col-1] = player.has(board[n.row+1][n.col-1]) ? board[n.row+1][n.col-1] : place;
+            }else if (player.has(board[n.row+1][n.col-1]) || board[n.row+1][n.col-1] == 0) {
+                board[n.row+1][n.col-1] = place;
                 queue.push({row: n.row+1, col: n.col-1 })
             }
         }  
         if ((n.row-1 >= 0 && n.col+1 < 10) ){
             if (opp.has(board[n.row-1][n.col+1])) {
                 return false;
-            }else if ((player.has(board[n.row-1][n.col+1]) || board[n.row-1][n.col+1] == 0)) {
-                board[n.row-1][n.col+1] = player.has(board[n.row-1][n.col+1]) ? board[n.row-1][n.col+1] : place;
+            }else if (player.has(board[n.row-1][n.col+1]) || board[n.row-1][n.col+1] == 0) {
+                board[n.row-1][n.col+1] = place;
                 queue.push({row: n.row-1, col: n.col+1 })
             }
         }
+
     }
+
     return true;
+}
+
+function count() {
+	
+	let playerc = 0;
+	let playerd = 0;
+	
+    for (let r = 0; r < 10; r++){
+        for (let c = 0; c < 10; c++){
+            if ((board[r][c] < 0 && board[r][c] > -5))
+                playerc++;
+            else if ((board[r][c] > 4 && board[r][c] < 9) || board[r][c] == 0)
+                playerd++;
+            
+        }
+    }
+	
+	//Final scores!
+	console.log(playerc);
+	console.log(playerd);
 }
 
 
