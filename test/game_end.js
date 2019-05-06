@@ -3,14 +3,14 @@
 var board = [
   [0,1,0,0,0,3,0,0,0,0],
   [0,0,0,0,0,0,0,0,0,0],
-  [0,0,0,0,0,0,0,0,4,0],
+  [0,0,0,0,0,4,0,0,0,0],
   [0,0,2,0,0,0,0,0,0,0],
   [9,9,9,9,9,9,9,9,9,9],
   [0,0,0,0,0,0,0,0,0,0],
   [0,0,0,0,0,0,0,0,0,0],
-  [0,0,8,0,5,0,0,4,0,0],
-  [0,0,0,0,0,0,0,0,0,0],
-  [0,6,0,0,0,0,0,0,0,0]
+  [8,0,0,0,5,0,0,7,0,0],
+  [0,6,0,0,0,0,0,0,0,0],
+  [0,0,0,0,0,0,0,0,0,0]
 ];
 
 const player = new Map();
@@ -18,8 +18,9 @@ const opp = new Map();
 
 pieces();
 
-if (checkPlayer())
+if (gameOver()) {
     console.log('game over!')
+}
 else 
     console.log('game not over!');        
 
@@ -37,6 +38,8 @@ function pieces() {
             }
         }
     }
+    console.log(player)
+    console.log(opp)
 }
 
 /** 
@@ -47,15 +50,13 @@ function pieces() {
  * if one players pieces are enclosed, then obviously the others are,
  * so no need to check player 2 every time.
  */
-function checkPlayer() {
+function gameOver() {
     for (let c = 1; c <= 4; c++) {
-
         if (!(forestFire(player.get(c), -c))) {
             return false;
-        }else {
-            return true;
         }
     }
+    return true;
 }
     
 function forestFire(value, place) {
@@ -127,7 +128,7 @@ function forestFire(value, place) {
             if (opp.has(board[n.row-1][n.col+1])) {
                 return false;
             }else if ((player.has(board[n.row-1][n.col+1]) || board[n.row-1][n.col+1] == 0)) {
-                board[n.row-1][n.col+1] = player.has(board[n.row][n.col+1]) ? board[n.row][n.col+1] : place;
+                board[n.row-1][n.col+1] = player.has(board[n.row-1][n.col+1]) ? board[n.row-1][n.col+1] : place;
                 queue.push({row: n.row-1, col: n.col+1 })
             }
         }
