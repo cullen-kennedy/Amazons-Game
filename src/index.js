@@ -5,7 +5,7 @@ import Board from './class/board'
 
 var socket = io.connect('http://localhost:5000');
 var canvas = new myCanvas();
-var player, game, board;
+var player, game, board, validMoves;
 
 
 /***************************************************************************************
@@ -15,8 +15,9 @@ var player, game, board;
  //New game
 $('#new').on('click', () => {
     var name = $('#nameNew').val();
+    player = new Player(name, 'images/queen.jpg', 'images/queen2.jpg', true);
     socket.emit('createGame', {name: name}); //server.js on.createGame
-    player = new Player(name, 'blue', 'red', true); //first player with name and initial starting point
+     //first player with name and initial starting point
 });
 
 //Called by server.js with on.createGame
@@ -24,12 +25,10 @@ $('#new').on('click', () => {
 socket.on('newGame', (data) => {
     
     game = new Game(data.room, player);
-    board = new Board(data.room, player);
+    board = new Board(canvas.ctx, data.room, player);
     player.setup(game.player1IDs, game.player1Pos, game.player2IDs, game.player2Pos);
-   
-
     
-    board.displayBoard(canvas.ctx);
+    board.displayBoard();
     document.getElementById("message").innerHTML = data.room + ' ' + player.name + ' ' + player.myTurnStart;  
 });
 
@@ -40,8 +39,8 @@ socket.on ('player1', (data) => {
     const message = 'Hello, player1';
     
     //Default value are hardcoded in game and player class
-    board.default(canvas.ctx);
-    board.oppDefault(canvas.ctx);
+    board.default();
+    board.oppDefault();
 
     canvas.canvas.addEventListener('click', (e) => {       
         processClick(e.clientX, e.clientY);
@@ -56,10 +55,11 @@ socket.on ('player1', (data) => {
 $('#join').on('click', () => {
     var name = $('#nameJoin').val();
     var roomID = $('#room').val();
+     //second player with name and initial starting point
+    player = new Player(name, 'images/queen2.jpg', 'images/queen.jpg', false);
 
-    socket.emit('joinGame', {name: name, room: roomID}); //server.js on.joinGame 
-    player = new Player(name, 'red', 'blue', false); //second player with name and initial starting point
     
+    socket.emit('joinGame', {name: name, room: roomID}); //server.js on.joinGame    
 });
 
 //Displays board and does the same as on.'player1'
@@ -67,18 +67,24 @@ socket.on ('player2', (data) => {
     const message = 'Hello, player2';
    
     game = new Game(data.room, player);
-    board = new Board(data.room, player);
+    board = new Board(canvas.ctx, data.room, player);
+    board.displayBoard();
     player.setup(game.player2IDs, game.player2Pos, game.player1IDs, game.player1Pos);
     
     document.getElementById("message").innerHTML = data.room;
-    board.displayBoard(canvas.ctx);
-    board.default(canvas.ctx);
-    board.oppDefault(canvas.ctx);
+   
+    //This doesn't work every time!
+    player.oppImage.onload = () => {
+        board.default();
+        board.oppDefault();
+    }
 
     canvas.canvas.addEventListener('click', (e)=> {       
         processClick(e.clientX, e.clientY);
     });
 });
+
+
 
 /**************************************************************************
 * Game Controller functions
@@ -94,17 +100,16 @@ socket.on ('player2', (data) => {
 //Update Move
 socket.on('oppMove', (data) => {
     console.log('oppmove');
-    canvas.ctx.fillStyle = 'white';
-    canvas.ctx.fillRect(player.oppPieces.get(data.selID).col * 50, player.oppPieces.get(data.selID).row * 50, 50, 50);
+    board.resetBlock(player.oppPieces.get(data.selID).col, player.oppPieces.get(data.selID).row)  
     game.oppMove(data.selID, data.col, data.row)
-    board.oppMove(canvas.ctx, data.col, data.row);
+    board.oppMove(data.col, data.row);
     
 });
 
 //Update opponents arrow
 socket.on('oppShoot', (data) => {
     game.oppShoot(data.col, data.row)
-    board.oppShoot(canvas.ctx, data.col, data.row)
+    board.oppShoot(data.col, data.row)
     player.myTurnStart = true;
 })
 
@@ -162,9 +167,7 @@ function processClick(x, y) {
                 });
                 
                 player.myShoot = false;
-                //print player instant pieces
-                console.log(player.pieces);
-                console.log(player.oppPieces);
+                console.log(game.board)
             }
             else {
                 console.log("Not legal shot");
@@ -180,10 +183,10 @@ function processClick(x, y) {
 
         if (player.pieces.has(game.board[y][x]))
         {
-            player.selection.ID = game.board[y][x];
-            player.selection.row = y;
-            player.selection.col = x;
-            board.moveStart(canvas.ctx);
+            player.updateSel(game.board[y][x], x, y);
+            board.moveStart();
+            validMoves = game.checkPath(x, y)
+            board.validMoves(validMoves, 0)
             return true;
         }
         else{
@@ -192,13 +195,14 @@ function processClick(x, y) {
     }
 
     function processMoveEnd(x, y) {
-
         //CheckPath starts at the original place
-        if (game.checkPath(player.selection.col, player.selection.row).includes(x + (y*10)) && game.moveEnd(x, y) == true){
-            //Replace these next two lines with a function
-            canvas.ctx.fillStyle = 'white';
-            canvas.ctx.fillRect(player.selection.col * 50, player.selection.row * 50, 50, 50);
-            board.moveEnd(canvas.ctx, x, y);
+        if (validMoves.includes(x + (y*10)) && game.moveEnd(x, y) == true){
+            board.clearValidMoves(validMoves)
+            board.resetBlock(player.selection.col, player.selection.row)
+            board.moveEnd(x, y);
+            validMoves = game.checkPath(player.pieces.get(player.selection.ID).col, player.pieces.get(player.selection.ID).row)
+            board.validMoves(validMoves, 1);
+            
             return true;
         }
         else {
@@ -208,9 +212,11 @@ function processClick(x, y) {
             
     function processShoot(x, y) {
         
+        
         //checkpath starts at the new player piece position
-        if (game.checkPath(player.pieces.get(player.selection.ID).col, player.pieces.get(player.selection.ID).row).includes(x + (y * 10)) && game.shoot(x, y) == true){
-            board.shoot(canvas.ctx, x, y);
+        if (validMoves.includes(x + (y * 10)) && game.shoot(x, y) == true){
+            board.clearValidMoves(validMoves);
+            board.shoot(x, y);
             return true;
         } else 
         {

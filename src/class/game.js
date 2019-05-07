@@ -84,7 +84,6 @@ export default class game {
         if (this.board[y][x] == this.empty){
             this.board[y][x] = this.arrow;
             //print the board to check
-            console.log(this.board)
             return true;           
         }
         else {
@@ -137,7 +136,7 @@ export default class game {
 
         let upleftx = x-1;
         let uplefty = y-1;
-        while (upleftx-1 >= 0 && uplefty >= 0 && this.board[uplefty][upleftx] == 0) {
+        while (upleftx >= 0 && uplefty >= 0 && this.board[uplefty][upleftx] == 0) {
             validMoves.push(upleftx + (uplefty * 10));
             upleftx--;
             uplefty--;
@@ -146,7 +145,7 @@ export default class game {
 
         let uprightx = x+1;
         let uprighty = y-1;
-        while (uprightx-1 <= 9  && uprighty >= 0 && this.board[uprighty][uprightx] == 0) {
+        while (uprightx <= 9  && uprighty >= 0 && this.board[uprighty][uprightx] == 0) {
             validMoves.push(uprightx + (uprighty * 10));
             uprightx++;
             uprighty--;
@@ -154,20 +153,25 @@ export default class game {
 
         let downleftx = x-1;
         let downlefty = y+1;
-        while (downleftx-1 >= 0  && downlefty <= 9 && this.board[downlefty][downleftx] == 0) {
+        while (downleftx >= 0  && downlefty <= 9 && this.board[downlefty][downleftx] == 0) {
+            console.log(downleftx);
+            console.log(downlefty)
+            console.log('\n');
             validMoves.push(downleftx + (downlefty * 10));
             downleftx--;
             downlefty++;
+
+            console.log('truth?')
+            console.log()
         }
 
         let downrightx = x+1;
         let downrighty = y+1;
-        while (downrightx-1 <= 9  && downrighty <= 9 && this.board[downrighty][downrightx] == 0) {
+        while (downrightx <= 9  && downrighty <= 9 && this.board[downrighty][downrightx] == 0) {
             validMoves.push(downrightx + (downrighty * 10));
             downrightx++;
             downrighty++;
         }
-
         return validMoves;
     }
 

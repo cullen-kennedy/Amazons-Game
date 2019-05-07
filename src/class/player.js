@@ -3,13 +3,16 @@
  */
 
 export default class player {
-    constructor(name, colour, oppColour, turn)
+    constructor(name, src, oppSrc, turn)
     {
         this.myTurnStart = turn;
         this.myTurnEnd = false;
         this.myShoot = false;
-        this.colour = colour;
-        this.oppColour = oppColour;
+        this.oppImage = new Image();
+        this.image = new Image();
+        this.src = src;
+        this.oppSrc = oppSrc;
+       
         this.name = name;
         this.selection = {
                             ID: 0,
@@ -24,6 +27,8 @@ export default class player {
 
     setup(ID, startPos, oppID, oppStartPos)
     {
+        this.oppImage.src = this.oppSrc
+        this.image.src = this.src;
         this.pieces.set(ID[0], startPos[0])
         this.pieces.set(ID[1], startPos[1])
         this.pieces.set(ID[2], startPos[2])
@@ -37,5 +42,10 @@ export default class player {
         this.oppPieces.set(oppID[3], oppStartPos[3])
     }
 
+    updateSel(id, x, y) {
+        this.selection.ID = id;
+        this.selection.row = y;
+        this.selection.col = x;
+    }
 }
 

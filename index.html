@@ -1,21 +1,24 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>AMAZON</title>
-    <link rel="stylesheet" href="main.css" />
+    <title>AMAZONS</title>
+    <link rel="stylesheet" type='text/css' href="main.css" />
     
   </head>
   <body>
-    <div id="menu">
-      <h1>Start a Game
+    <h1>AMAZONS</h1>
+    <div id="menu" >
+      <div class="menu-form" id="new-form">
+        <p>Start a Game</p>
         <input type="text" name="name" id="nameNew" placeholder="Enter your name" required>
         <button id="new">New Game</button>
-      </h1>
-      <h1>Join a Game
+      </div>
+      <div class="menu-form" id="join-form">
+         <p>Join a Game</p>
         <input type="text" name="name" id="nameJoin" placeholder="Enter your name" required>
         <input type="text" name="room" id="room" placeholder="Enter Game ID" required>
         <button id="join">Join Game</button>
-      </h2>
+      </div>
     </div>
     <canvas id="canvas"></canvas>
     <p id="message"></p>

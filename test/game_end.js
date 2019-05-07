@@ -1,16 +1,31 @@
-
+/**
+ * This determines if the endgame has been reached, both teams are isolated 
+ * It counts the remaining moves, and determines who will fill their space 
+ * up more quickly with optimal moves and therefore lose.
+ * 
+ * There are a few problems though,
+ * 1. On wikipedia, the end game example shows immediately after any player
+ *    makes a move and there are no meaningful moves left, endgame starts.
+ *    This includes if a player is blocked by an enemy piece. 
+ *         - this current algorithm only tests if the player is blocked by arrows
+ * 2. In rare cases a territory is structured in such a way that the inhabiting amazons
+      cannot move to all of the remaining squares and therefore some moves are lost.
+           - Solution (for now?), allow player with least moves to concede 
+      
+ */
 //9s represent arrows
 var board = [
-  [1,2,3,4,9,9,0,0,0,0],
-  [9,9,9,9,9,9,9,9,9,9],
-  [0,0,9,0,9,0,0,0,0,0],
-  [0,0,9,9,9,0,0,0,0,0],
-  [9,9,9,0,0,0,0,0,0,0],
-  [0,9,0,0,0,0,0,0,0,0],
-  [0,9,9,0,0,0,0,0,0,0],
-  [8,9,9,0,5,0,0,7,0,0],
-  [0,6,9,0,0,0,0,0,0,0],
-  [0,9,9,0,0,0,0,0,0,0]
+  [9,0,0,5,9,0,0,9,0,0],
+  [0,9,9,9,0,9,0,0,9,0],
+  [9,9,1,9,9,9,9,9,9,9],
+  [0,0,9,9,9,2,0,0,9,3],
+  [0,0,9,0,9,9,9,9,9,9],
+  [0,9,9,9,6,9,0,9,0,0],
+  [0,9,9,0,0,9,9,0,0,0],
+  [9,9,0,9,9,9,9,9,0,0],
+  [9,9,7,9,4,9,9,0,0,0],
+  [0,0,9,9,9,9,8,0,0,9]
+  
 ];
 
 const player = new Map();
@@ -159,8 +174,8 @@ function count() {
     }
 	
 	//Final scores!
-	console.log(playerc);
-	console.log(playerd);
+	console.log(playerc - 4);
+	console.log(playerd - 4);
 }
 
 
