@@ -56,6 +56,19 @@ h1 {
    background-color:whitesmoke;
 }
 
+.room-info {
+  margin-left:auto;
+  margin-right:auto;
+}
+
+#roomid {
+  text-align: center;
+}
+
+#message {
+  text-align: center;
+}
+
 canvas#canvas {
   position: relative;
   padding: 0;

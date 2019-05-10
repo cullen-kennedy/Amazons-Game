@@ -27,16 +27,21 @@ socket.on('newGame', (data) => {
     game = new Game(data.room, player);
     board = new Board(canvas.ctx, data.room, player);
     player.setup(game.player1IDs, game.player1Pos, game.player2IDs, game.player2Pos);
+
+    document.getElementById("roomid").innerHTML = 'Room: ' + data.room; 
+    document.getElementById("message").innerHTML = 'Player: ' + player.name;
     
     board.displayBoard();
-    document.getElementById("message").innerHTML = data.room + ' ' + player.name + ' ' + player.myTurnStart;  
+    
+    
+
 });
 
 //Called by server.js, broadcast to player 1 by player 2
 //sends player 1 the room name and a name
 //CHECK WHAT NAME IS SENT BACK?
 socket.on ('player1', (data) => {
-    const message = 'Hello, player1';
+    
     
     //Default value are hardcoded in game and player class
     board.default();
@@ -64,18 +69,21 @@ $('#join').on('click', () => {
 
 //Displays board and does the same as on.'player1'
 socket.on ('player2', (data) => {
-    const message = 'Hello, player2';
-   
+
     game = new Game(data.room, player);
     board = new Board(canvas.ctx, data.room, player);
     board.displayBoard();
     player.setup(game.player2IDs, game.player2Pos, game.player1IDs, game.player1Pos);
     
-    document.getElementById("message").innerHTML = data.room;
+    document.getElementById("roomid").innerHTML = 'Room: ' + data.room; 
+    document.getElementById("message").innerHTML = 'Player: ' + player.name;
    
     //This doesn't work every time!
-    player.oppImage.onload = () => {
+    player.image.onload = () => {
         board.default();
+    }
+
+    player.oppImage.onload = () => {
         board.oppDefault();
     }
 
@@ -119,7 +127,8 @@ function processClick(x, y) {
 
         if (player.myTurnStart == true)
         {
-            let xcoord = (~~((x - canvas.canvas.offsetLeft) /50));
+         
+            let xcoord = (~~((x - canvas.canvas.offsetLeft) / 50));
             let ycoord = (~~((y - canvas.canvas.offsetTop) / 50));
 
             if (processMoveStart(xcoord, ycoord) == true) {
@@ -138,7 +147,14 @@ function processClick(x, y) {
             let xcoord = (~~((x - canvas.canvas.offsetLeft) / 50));
             let ycoord = (~~((y - canvas.canvas.offsetTop) / 50));
 
-            if (processMoveEnd(xcoord, ycoord) == true) {
+            if (player.pieces.has(game.board[ycoord][xcoord])) {
+                player.myTurnEnd = false;
+                player.myTurnStart = true;
+                board.clearValidMoves(validMoves);
+                board.resetBorder(player.selection.col, player.selection.row);
+            }
+
+            else if (processMoveEnd(xcoord, ycoord) == true) {
                 socket.emit('playersMove', {
                     selID: player.selection.ID,
                     newrow: ycoord,
@@ -167,7 +183,6 @@ function processClick(x, y) {
                 });
                 
                 player.myShoot = false;
-                console.log(game.board)
             }
             else {
                 console.log("Not legal shot");
@@ -201,6 +216,7 @@ function processClick(x, y) {
             board.resetBlock(player.selection.col, player.selection.row)
             board.moveEnd(x, y);
             validMoves = game.checkPath(player.pieces.get(player.selection.ID).col, player.pieces.get(player.selection.ID).row)
+            board.showSelection(player.pieces.get(player.selection.ID).col, player.pieces.get(player.selection.ID).row)
             board.validMoves(validMoves, 1);
             
             return true;
@@ -211,11 +227,11 @@ function processClick(x, y) {
     }
             
     function processShoot(x, y) {
-        
-        
+
         //checkpath starts at the new player piece position
         if (validMoves.includes(x + (y * 10)) && game.shoot(x, y) == true){
             board.clearValidMoves(validMoves);
+            board.resetBorder(player.pieces.get(player.selection.ID).col, player.pieces.get(player.selection.ID).row)
             board.shoot(x, y);
             return true;
         } else 

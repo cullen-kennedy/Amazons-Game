@@ -154,15 +154,9 @@ export default class game {
         let downleftx = x-1;
         let downlefty = y+1;
         while (downleftx >= 0  && downlefty <= 9 && this.board[downlefty][downleftx] == 0) {
-            console.log(downleftx);
-            console.log(downlefty)
-            console.log('\n');
             validMoves.push(downleftx + (downlefty * 10));
             downleftx--;
             downlefty++;
-
-            console.log('truth?')
-            console.log()
         }
 
         let downrightx = x+1;

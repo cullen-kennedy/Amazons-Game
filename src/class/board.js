@@ -44,8 +44,7 @@ export default class board {
     }
 
     moveStart() {
-        this.ctx.fillStyle = 'rgba(0,0,225,0.5)';
-        this.ctx.fillRect((this.player.selection.col * this.stageProps.block_size) +1, (this.player.selection.row * this.stageProps.block_size)+1, this.stageProps.block_size-2, this.stageProps.block_size-2);
+        this.showSelection(this.player.selection.col,this.player.selection.row)
     }
 
     moveEnd(x, y) {
@@ -66,13 +65,24 @@ export default class board {
        this.ctx.drawImage(this.player.oppImage, (x * this.stageProps.block_size)+5, (y * this.stageProps.block_size)+5, (this.stageProps.block_size)-10, this.stageProps.block_size-10);
     }
 
+    showSelection(x, y) {
+        this.ctx.strokeStyle = 'blue';
+        this.ctx.strokeRect((x * this.stageProps.block_size), (y * this.stageProps.block_size), this.stageProps.block_size, this.stageProps.block_size);
+    }
+
     resetBlock(x, y) {
         this.ctx.fillStyle = 'white';
         this.ctx.fillRect(x * this.stageProps.block_size +1, y * this.stageProps.block_size+1, this.stageProps.block_size-2, this.stageProps.block_size-2);
+        this.resetBorder(x, y)
+    }
+
+    resetBorder(x, y) {
+        this.ctx.strokeStyle = 'black';
+        this.ctx.strokeRect(x * this.stageProps.block_size, y * this.stageProps.block_size, this.stageProps.block_size, this.stageProps.block_size);
     }
 
     validMoves(validMoves, type) {
-        this.ctx.fillStyle = (type == 0) ? 'rgba(0,225,0,0.5)' : 'rgba(225,0,0,0.5)';
+        this.ctx.fillStyle = (type == 0) ? 'rgba(0,225,0,0.5)' : 'rgba(225,225,0,0.5)';
         validMoves.forEach( (element) => {
             let x = element % 10;
             let y = ~~(element / 10)
