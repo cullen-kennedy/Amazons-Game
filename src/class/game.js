@@ -169,4 +169,22 @@ export default class game {
         return validMoves;
     }
 
+    //Reusing checkPath to check if player has any valid moves
+    lose() {    
+      
+        for (let [k, v] of this.player.pieces) {
+            if (this.checkPath(v.col, v.row).length > 0)
+                return false
+        }
+        return true;     
+    }
+
+    win() {
+        for (let [k, v] of this.player.oppPieces) {
+            if (this.checkPath(v.col, v.row).length > 0)
+                return false
+        }
+        return true;
+    }
+
 } 

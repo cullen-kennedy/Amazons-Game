@@ -5,7 +5,7 @@ import Board from './class/board'
 
 var socket = io.connect('http://localhost:5000');
 var canvas = new myCanvas();
-var player, game, board, validMoves;
+var player, game, board, validMoves, gameOver = false;
 
 
 /***************************************************************************************
@@ -121,12 +121,19 @@ socket.on('oppShoot', (data) => {
     player.myTurnStart = true;
 })
 
+socket.on('end', (data) => {
+    console.log(data.status)
+})
+
+socket.on('disconnected', () => {
+    console.log("Your opponent disconnected")
+})
 //The event listener is always listening, 
 //but the action that is takes depends on player variables
 function processClick(x, y) {
 
         if (player.myTurnStart == true)
-        {
+        { 
          
             let xcoord = (~~((x - canvas.canvas.offsetLeft) / 50));
             let ycoord = (~~((y - canvas.canvas.offsetTop) / 50));
@@ -181,7 +188,14 @@ function processClick(x, y) {
                     col: xcoord,
                     room: game.roomID
                 });
-                
+                if (game.win())  {
+                    socket.emit('gameOver', {room: game.roomID, status: 'You Lost'} )
+                    console.log('You Won')
+                }
+                else if (game.lose()) {
+                    socket.emit('gameOver', {room: game.roomID, status: 'You Won'} )
+                    console.log('You Lost')
+                }
                 player.myShoot = false;
             }
             else {
@@ -194,50 +208,50 @@ function processClick(x, y) {
         } 
 
 
-    function processMoveStart(x, y) {
+        function processMoveStart(x, y) {
 
-        if (player.pieces.has(game.board[y][x]))
-        {
-            player.updateSel(game.board[y][x], x, y);
-            board.moveStart();
-            validMoves = game.checkPath(x, y)
-            board.validMoves(validMoves, 0)
-            return true;
+            if (player.pieces.has(game.board[y][x]))
+            {
+                player.updateSel(game.board[y][x], x, y);
+                board.moveStart();
+                validMoves = game.checkPath(x, y)
+                board.validMoves(validMoves, 0)
+                return true;
+            }
+            else{
+                return false;
+            }
         }
-        else{
-            return false;
+
+        function processMoveEnd(x, y) {
+            //CheckPath starts at the original place
+            if (validMoves.includes(x + (y*10)) && game.moveEnd(x, y) == true){
+                board.clearValidMoves(validMoves)
+                board.resetBlock(player.selection.col, player.selection.row)
+                board.moveEnd(x, y);
+                validMoves = game.checkPath(player.pieces.get(player.selection.ID).col, player.pieces.get(player.selection.ID).row)
+                board.showSelection(player.pieces.get(player.selection.ID).col, player.pieces.get(player.selection.ID).row)
+                board.validMoves(validMoves, 1);
+                
+                return true;
+            }
+            else {
+                return false;
+            }    
+        }
+                
+        function processShoot(x, y) {
+
+            //checkpath starts at the new player piece position
+            if (validMoves.includes(x + (y * 10)) && game.shoot(x, y) == true){
+                board.clearValidMoves(validMoves);
+                board.resetBorder(player.pieces.get(player.selection.ID).col, player.pieces.get(player.selection.ID).row)
+                board.shoot(x, y);
+                return true;
+            } else 
+            {
+                return false;
+            }
         }
     }
-
-    function processMoveEnd(x, y) {
-        //CheckPath starts at the original place
-        if (validMoves.includes(x + (y*10)) && game.moveEnd(x, y) == true){
-            board.clearValidMoves(validMoves)
-            board.resetBlock(player.selection.col, player.selection.row)
-            board.moveEnd(x, y);
-            validMoves = game.checkPath(player.pieces.get(player.selection.ID).col, player.pieces.get(player.selection.ID).row)
-            board.showSelection(player.pieces.get(player.selection.ID).col, player.pieces.get(player.selection.ID).row)
-            board.validMoves(validMoves, 1);
-            
-            return true;
-        }
-        else {
-            return false;
-        }    
-    }
-            
-    function processShoot(x, y) {
-
-        //checkpath starts at the new player piece position
-        if (validMoves.includes(x + (y * 10)) && game.shoot(x, y) == true){
-            board.clearValidMoves(validMoves);
-            board.resetBorder(player.pieces.get(player.selection.ID).col, player.pieces.get(player.selection.ID).row)
-            board.shoot(x, y);
-            return true;
-        } else 
-        {
-            return false;
-        }
-    }
-}
-
+//}
