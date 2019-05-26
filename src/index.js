@@ -6,7 +6,17 @@ import Board from './class/board'
 var socket = io.connect('http://localhost:5000');
 var canvas = new myCanvas();
 var player, game, board, validMoves, gameOver = false;
+var alertBox = document.getElementById("alert");
 
+
+function myAlert(message) {
+
+    alertBox.style.display = 'block'
+    alertBox.innerHTML = message;
+    setTimeout(()=>{alertBox.style.display = 'none'}, 800)
+    
+
+}
 
 /***************************************************************************************
  * Player 1 functions
@@ -78,7 +88,6 @@ socket.on ('player2', (data) => {
     document.getElementById("roomid").innerHTML = 'Room: ' + data.room; 
     document.getElementById("message").innerHTML = 'Player: ' + player.name;
    
-    //This doesn't work every time!
     player.image.onload = () => {
         board.default();
     }
@@ -173,7 +182,8 @@ function processClick(x, y) {
                 player.myShoot = true;
             }
             else {
-                console.log('Not Legal Move')
+                board.badMove(xcoord, ycoord)
+                setTimeout(() => {board.resetBorder(xcoord, ycoord)}, 500)
             }
         }
         else if (player.myShoot == true)
@@ -199,12 +209,13 @@ function processClick(x, y) {
                 player.myShoot = false;
             }
             else {
-                console.log("Not legal shot");
+                board.badMove(xcoord, ycoord)
+                setTimeout(() => {board.resetBorder(xcoord, ycoord)}, 500)
             }
         } 
         else 
         {
-            console.log("not your turn");
+            myAlert("Not your Turn")
         } 
 
 
@@ -254,4 +265,4 @@ function processClick(x, y) {
             }
         }
     }
-//}
+

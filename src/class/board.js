@@ -1,6 +1,6 @@
 /**
  * This class takes care of the visual board
- * Notes: find better way to do padding
+ * Notes: Some of these functions can be combined maybe?
  */
 
 export default class board {
@@ -31,7 +31,6 @@ export default class board {
     default() {
             this.player.pieces.forEach((value) =>{
                 console.log('default');
-                console.log(this.player.image)
                 this.ctx.drawImage(this.player.image, (value.col * this.stageProps.block_size)+5, (value.row * this.stageProps.block_size)+5, this.stageProps.block_size-10, this.stageProps.block_size-10);
             });
     }
@@ -99,7 +98,9 @@ export default class board {
         });
     }
 
-    
-    
+    badMove(x, y) {
+        this.ctx.strokeStyle = 'red';
+        this.ctx.strokeRect(x * this.stageProps.block_size , y * this.stageProps.block_size, this.stageProps.block_size, this.stageProps.block_size);
+    }
 
 }
