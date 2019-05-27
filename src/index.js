@@ -140,13 +140,16 @@ socket.on('disconnected', () => {
 //The event listener is always listening, 
 //but the action that is takes depends on player variables
 function processClick(x, y) {
-
+	
+		let rect = canvas.canvas.getBoundingClientRect();
+	
         if (player.myTurnStart == true)
         { 
+			
          
-            let xcoord = (~~((x - canvas.canvas.offsetLeft) / 50));
-            let ycoord = (~~((y - canvas.canvas.offsetTop) / 50));
-
+            let xcoord = (~~((x - rect.left) / 50));
+            let ycoord = (~~((y - rect.top) / 50));
+		
             if (processMoveStart(xcoord, ycoord) == true) {
 
                 player.myTurnStart = false;
@@ -160,8 +163,8 @@ function processClick(x, y) {
         else if (player.myTurnEnd == true)
         {
 
-            let xcoord = (~~((x - canvas.canvas.offsetLeft) / 50));
-            let ycoord = (~~((y - canvas.canvas.offsetTop) / 50));
+            let xcoord = (~~((x - rect.left) / 50));
+            let ycoord = (~~((y - rect.top) / 50));
 
             if (player.pieces.has(game.board[ycoord][xcoord])) {
                 player.myTurnEnd = false;
@@ -188,8 +191,8 @@ function processClick(x, y) {
         }
         else if (player.myShoot == true)
         { 
-            let xcoord = (~~((x - canvas.canvas.offsetLeft) / 50));
-            let ycoord = (~~((y - canvas.canvas.offsetTop) / 50)); 
+            let xcoord = (~~((x - rect.left) / 50));
+            let ycoord = (~~((y - rect.top) / 50)); 
 
             if (processShoot(xcoord, ycoord) == true) {
                 
