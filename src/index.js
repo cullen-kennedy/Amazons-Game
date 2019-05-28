@@ -7,15 +7,18 @@ var socket = io.connect('http://localhost:5000');
 var canvas = new myCanvas();
 var player, game, board, validMoves, gameOver = false;
 var alertBox = document.getElementById("alert");
+var bigAlertBox = document.getElementById("bigAlert")
 
 
 function myAlert(message) {
-
     alertBox.style.display = 'block'
     alertBox.innerHTML = message;
     setTimeout(()=>{alertBox.style.display = 'none'}, 800)
-    
+}
 
+function bigAlert(message) {
+    bigAlertBox.style.display = 'block'
+    bigAlertBox.innerHTML = message;
 }
 
 /***************************************************************************************
@@ -42,21 +45,18 @@ socket.on('newGame', (data) => {
     document.getElementById("message").innerHTML = 'Player: ' + player.name;
     
     board.displayBoard();
-    
-    
-
 });
 
 //Called by server.js, broadcast to player 1 by player 2
 //sends player 1 the room name and a name
 //CHECK WHAT NAME IS SENT BACK?
 socket.on ('player1', (data) => {
-    
-    
     //Default value are hardcoded in game and player class
-    board.default();
-    board.oppDefault();
+    //Images have loaded by the time get here?
 
+      board.default();
+      board.oppDefault();
+    
     canvas.canvas.addEventListener('click', (e) => {       
         processClick(e.clientX, e.clientY);
     });
@@ -70,10 +70,9 @@ socket.on ('player1', (data) => {
 $('#join').on('click', () => {
     var name = $('#nameJoin').val();
     var roomID = $('#room').val();
-     //second player with name and initial starting point
+    //second player with name and initial starting point
     player = new Player(name, 'images/queen2.jpg', 'images/queen.jpg', false);
 
-    
     socket.emit('joinGame', {name: name, room: roomID}); //server.js on.joinGame    
 });
 
@@ -131,41 +130,35 @@ socket.on('oppShoot', (data) => {
 })
 
 socket.on('end', (data) => {
-    console.log(data.status)
+    bigAlert(data.status)
 })
 
 socket.on('disconnected', () => {
-    console.log("Your opponent disconnected")
+    bigAlert("Your opponent disconnected")
 })
 //The event listener is always listening, 
 //but the action that is takes depends on player variables
 function processClick(x, y) {
 	
-		let rect = canvas.canvas.getBoundingClientRect();
+        let rect = canvas.canvas.getBoundingClientRect();
+        let xcoord = (~~((x - rect.left) / 50));
+        let ycoord = (~~((y - rect.top) / 50));
 	
-        if (player.myTurnStart == true)
+        if (player.myTurnStart)
         { 
-			
-         
-            let xcoord = (~~((x - rect.left) / 50));
-            let ycoord = (~~((y - rect.top) / 50));
-		
             if (processMoveStart(xcoord, ycoord) == true) {
 
                 player.myTurnStart = false;
                 player.myTurnEnd = true;
             }
             else {
-                console.log("Not your piece");
+                board.badMove(xcoord, ycoord)
+                setTimeout(() => {board.resetBorder(xcoord, ycoord)}, 500)
             }
 
         }
-        else if (player.myTurnEnd == true)
+        else if (player.myTurnEnd)
         {
-
-            let xcoord = (~~((x - rect.left) / 50));
-            let ycoord = (~~((y - rect.top) / 50));
-
             if (player.pieces.has(game.board[ycoord][xcoord])) {
                 player.myTurnEnd = false;
                 player.myTurnStart = true;
@@ -189,11 +182,8 @@ function processClick(x, y) {
                 setTimeout(() => {board.resetBorder(xcoord, ycoord)}, 500)
             }
         }
-        else if (player.myShoot == true)
+        else if (player.myShoot)
         { 
-            let xcoord = (~~((x - rect.left) / 50));
-            let ycoord = (~~((y - rect.top) / 50)); 
-
             if (processShoot(xcoord, ycoord) == true) {
                 
                 socket.emit('playersShoot', {
@@ -203,11 +193,11 @@ function processClick(x, y) {
                 });
                 if (game.win())  {
                     socket.emit('gameOver', {room: game.roomID, status: 'You Lost'} )
-                    console.log('You Won')
+                    bigAlert('You Won')
                 }
                 else if (game.lose()) {
                     socket.emit('gameOver', {room: game.roomID, status: 'You Won'} )
-                    console.log('You Lost')
+                    bigAlert('You Lost')
                 }
                 player.myShoot = false;
             }
