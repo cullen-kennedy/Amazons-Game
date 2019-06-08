@@ -64,10 +64,13 @@ export default class game {
     } 
 
     moveEnd(x, y) {
+
+        let sel = this.player.selection;
+
         if (this.board[y][x] == this.empty){
-            this.board[this.player.selection.row][this.player.selection.col] = 0;
-            this.player.pieces.set(this.player.selection.ID, {row:y, col:x});
-            this.board[y][x] = this.player.selection.ID;
+            this.board[sel.row][sel.col] = 0;
+            this.player.pieces.set(sel.ID, {row:y, col:x});
+            this.board[y][x] = sel.ID;
             return true
         } else {
             return false
@@ -75,8 +78,11 @@ export default class game {
     }
 
     oppMove(ID, x, y) {
-        this.board[this.player.oppPieces.get(ID).row][this.player.oppPieces.get(ID).col] = 0;
-        this.player.oppPieces.set(ID, {row:y, col:x});
+
+        let oppPieces = this.player.oppPieces
+
+        this.board[oppPieces.get(ID).row][oppPieces.get(ID).col] = 0;
+        oppPieces.set(ID, {row:y, col:x});
         this.board[y][x] = ID;
     }
 

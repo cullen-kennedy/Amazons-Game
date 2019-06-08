@@ -10,12 +10,6 @@ var alertBox = document.getElementById("alert");
 var bigAlertBox = document.getElementById("bigAlert")
 
 
-function myAlert(message) {
-    alertBox.style.display = 'block'
-    alertBox.innerHTML = message;
-    setTimeout(()=>{alertBox.style.display = 'none'}, 800)
-}
-
 function bigAlert(message) {
     bigAlertBox.style.display = 'block'
     bigAlertBox.innerHTML = message;
@@ -208,7 +202,8 @@ function processClick(x, y) {
         } 
         else 
         {
-            myAlert("Not your Turn")
+            board.badMove(xcoord, ycoord)
+                setTimeout(() => {board.resetBorder(xcoord, ycoord)}, 500)
         } 
 
 
@@ -235,8 +230,7 @@ function processClick(x, y) {
                 board.moveEnd(x, y);
                 validMoves = game.checkPath(player.pieces.get(player.selection.ID).col, player.pieces.get(player.selection.ID).row)
                 board.showSelection(player.pieces.get(player.selection.ID).col, player.pieces.get(player.selection.ID).row)
-                board.validMoves(validMoves, 1);
-                
+                board.validMoves(validMoves, 1);               
                 return true;
             }
             else {

@@ -19,11 +19,18 @@ export default class board {
 
     displayBoard() {
         
-        for(var r = 0; r < this.stageProps.num_rows; r++)
+        for(var y = 0; y < this.stageProps.num_rows; y++)
         {
-            for (var b = 0; b < this.stageProps.num_rows; b++)
+            for (var x = 0; x < this.stageProps.num_rows; x++)
             {
-                this.ctx.strokeRect(r * this.stageProps.block_size, b * this.stageProps.block_size, this.stageProps.block_size, this.stageProps.block_size);
+                this.ctx.strokeRect(x * this.stageProps.block_size, y * this.stageProps.block_size, this.stageProps.block_size, this.stageProps.block_size);
+                if (y % 2 == 0){
+                    this.ctx.fillStyle = (x % 2 == 0 ) ? 'yellow': 'green';
+                }else {
+                    this.ctx.fillStyle = (x % 2 != 0 ) ? 'yellow': 'green';
+                }
+                
+                this.ctx.fillRect(x * this.stageProps.block_size +1, y * this.stageProps.block_size+1, this.stageProps.block_size-2, this.stageProps.block_size-2);
             }
         }
     }
@@ -70,7 +77,11 @@ export default class board {
     }
 
     resetBlock(x, y) {
-        this.ctx.fillStyle = 'white';
+        if (y % 2 == 0){
+            this.ctx.fillStyle = (x % 2 == 0 ) ? 'yellow': 'green';
+        }else {
+            this.ctx.fillStyle = (x % 2 != 0 ) ? 'yellow': 'green';
+        }
         this.ctx.fillRect(x * this.stageProps.block_size +1, y * this.stageProps.block_size+1, this.stageProps.block_size-2, this.stageProps.block_size-2);
         this.resetBorder(x, y)
     }
@@ -81,7 +92,7 @@ export default class board {
     }
 
     validMoves(validMoves, type) {
-        this.ctx.fillStyle = (type == 0) ? 'rgba(0,225,0,0.5)' : 'rgba(225,225,0,0.5)';
+        this.ctx.fillStyle = (type == 0) ? '#add8e6' : '#ffb2b2';
         validMoves.forEach( (element) => {
             let x = element % 10;
             let y = ~~(element / 10)
@@ -90,10 +101,15 @@ export default class board {
     }
 
     clearValidMoves(validMoves) {
-        this.ctx.fillStyle = 'white';
+        
         validMoves.forEach( (element) => {
             let x = element % 10;
             let y = ~~(element / 10)
+            if (y % 2 == 0){
+                this.ctx.fillStyle = (x % 2 == 0 ) ? 'yellow': 'green';
+            }else {
+                this.ctx.fillStyle = (x % 2 != 0 ) ? 'yellow': 'green';
+            }
             this.ctx.fillRect(x * this.stageProps.block_size +1, y * this.stageProps.block_size+1, this.stageProps.block_size-2, this.stageProps.block_size-2);
         });
     }
