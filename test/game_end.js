@@ -14,7 +14,7 @@
       
  */
 //9s represent arrows
-var board = [
+var boardCopy = [
   [9,0,0,5,9,0,0,9,0,0],
   [0,9,9,9,0,9,0,0,9,0],
   [9,9,1,9,9,9,9,9,9,9],
@@ -28,8 +28,8 @@ var board = [
   
 ];
 
-const player = new Map();
-const opp = new Map();
+const this.player = new Map();
+const this.player.oppPieces = new Map();
 
 pieces();
 
@@ -47,10 +47,10 @@ else
 function pieces() {
     for (let r = 0; r < 10; r++){
         for (let c = 0; c < 10; c++){
-            if (board[r][c] > 0 && board[r][c] < 5)
-                player.set(board[r][c], { "row":r, "col":c});
-            else if (board[r][c] > 4 && board[r][c] < 9){
-                opp.set(board[r][c], { "row":r, "col":c});
+            if (boardCopy[r][c] > 0 && boardCopy[r][c] < 5)
+                this.player.set(boardCopy[r][c], { "row":r, "col":c});
+            else if (boardCopy[r][c] > 4 && boardCopy[r][c] < 9){
+                this.player.oppPieces.set(boardCopy[r][c], { "row":r, "col":c});
             }
         }
     }
@@ -67,11 +67,11 @@ function pieces() {
  */
 function gameOver() {
     for (let c = 1; c <= 4; c++) {
-        if (!(forestFire(player.get(c), -c))) {
+        if (!(forestFire(this.player.get(c), -c))) {
             return false;
         }
     }
-	console.log(board);
+	console.log(boardCopy);
     return true;
 }
     
@@ -82,73 +82,73 @@ function forestFire(value, place) {
     queue.push(value);
 	let count = 0;
 	
-	board[value.row][value.col] = place;
+	boardCopy[value.row][value.col] = place;
 
     while (queue.length != 0) {
  
         let n = queue.pop();
  
         if (n.col+1 < 10) {
-            if (opp.has(board[n.row][n.col+1])) {
+            if (this.player.oppPieces.has(boardCopy[n.row][n.col+1])) {
                 return false;
-            }else if (player.has(board[n.row][n.col+1]) || board[n.row][n.col+1] == 0) {
-                board[n.row][n.col+1] = place;
+            }else if (this.player.has(boardCopy[n.row][n.col+1]) || boardCopy[n.row][n.col+1] == 0) {
+                boardCopy[n.row][n.col+1] = place;
                 queue.push({row: n.row, col: n.col+1 })
             }
         }
         if (n.col-1 >= 0) {
-            if (opp.has(board[n.row][n.col-1])) {
+            if (this.player.oppPieces.has(boardCopy[n.row][n.col-1])) {
                 return false;
-            }else if (player.has(board[n.row][n.col-1]) || board[n.row][n.col-1] == 0) {
-                board[n.row][n.col-1] = place;
+            }else if (this.player.has(boardCopy[n.row][n.col-1]) || boardCopy[n.row][n.col-1] == 0) {
+                boardCopy[n.row][n.col-1] = place;
                 queue.push({row: n.row, col: n.col-1 })
             }
         }
         if (n.row+1 < 10) {
-            if (opp.has(board[n.row+1][n.col])) {
+            if (this.player.oppPieces.has(boardCopy[n.row+1][n.col])) {
                 return false;
-            }else if (player.has(board[n.row+1][n.col]) || board[n.row+1][n.col] == 0) {
-                board[n.row+1][n.col] = place;
+            }else if (this.player.has(boardCopy[n.row+1][n.col]) || boardCopy[n.row+1][n.col] == 0) {
+                boardCopy[n.row+1][n.col] = place;
                 queue.push({row: n.row+1, col: n.col })
             }
         }
         if (n.row-1 >= 0){
-            if (opp.has(board[n.row-1][n.col])){
+            if (this.player.oppPieces.has(boardCopy[n.row-1][n.col])){
                 return false;
-            }else if (player.has(board[n.row-1][n.col]) || board[n.row-1][n.col] == 0) {
-                board[n.row-1][n.col] = place;
+            }else if (this.player.has(boardCopy[n.row-1][n.col]) || boardCopy[n.row-1][n.col] == 0) {
+                boardCopy[n.row-1][n.col] = place;
                 queue.push({row: n.row-1, col: n.col })
             }
         }
         if ((n.row-1 >= 0 && n.col-1 >=0)){
-            if (opp.has(board[n.row-1][n.col-1])) {
+            if (this.player.oppPieces.has(boardCopy[n.row-1][n.col-1])) {
                 return false;
-            } else if (player.has(board[n.row-1][n.col-1]) || board[n.row-1][n.col-1] == 0) {
-                board[n.row-1][n.col-1] = place;
+            } else if (this.player.has(boardCopy[n.row-1][n.col-1]) || boardCopy[n.row-1][n.col-1] == 0) {
+                boardCopy[n.row-1][n.col-1] = place;
                 queue.push({row: n.row-1, col: n.col-1 })
             }  
         }
         if ((n.row+1 < 10 && n.col+1 < 10)){
-            if (opp.has(board[n.row+1][n.col+1])) {
+            if (this.player.oppPieces.has(boardCopy[n.row+1][n.col+1])) {
                 return false;
-            }else if (player.has(board[n.row+1][n.col+1]) || board[n.row+1][n.col+1] == 0) {
-                board[n.row+1][n.col+1] = place;
+            }else if (this.player.has(boardCopy[n.row+1][n.col+1]) || boardCopy[n.row+1][n.col+1] == 0) {
+                boardCopy[n.row+1][n.col+1] = place;
                 queue.push({row: n.row+1, col: n.col+1 })
             }
         }
         if ((n.row+1 < 10 && n.col-1 >=0)){
-            if (opp.has(board[n.row+1][n.col-1])) {
+            if (this.player.oppPieces.has(boardCopy[n.row+1][n.col-1])) {
                 return false;
-            }else if (player.has(board[n.row+1][n.col-1]) || board[n.row+1][n.col-1] == 0) {
-                board[n.row+1][n.col-1] = place;
+            }else if (this.player.has(boardCopy[n.row+1][n.col-1]) || boardCopy[n.row+1][n.col-1] == 0) {
+                boardCopy[n.row+1][n.col-1] = place;
                 queue.push({row: n.row+1, col: n.col-1 })
             }
         }  
         if ((n.row-1 >= 0 && n.col+1 < 10) ){
-            if (opp.has(board[n.row-1][n.col+1])) {
+            if (this.player.oppPieces.has(boardCopy[n.row-1][n.col+1])) {
                 return false;
-            }else if (player.has(board[n.row-1][n.col+1]) || board[n.row-1][n.col+1] == 0) {
-                board[n.row-1][n.col+1] = place;
+            }else if (this.player.has(boardCopy[n.row-1][n.col+1]) || boardCopy[n.row-1][n.col+1] == 0) {
+                boardCopy[n.row-1][n.col+1] = place;
                 queue.push({row: n.row-1, col: n.col+1 })
             }
         }
@@ -165,9 +165,9 @@ function count() {
 	
     for (let r = 0; r < 10; r++){
         for (let c = 0; c < 10; c++){
-            if ((board[r][c] < 0 && board[r][c] > -5))
+            if ((boardCopy[r][c] < 0 && boardCopy[r][c] > -5))
                 playerc++;
-            else if ((board[r][c] > 4 && board[r][c] < 9) || board[r][c] == 0)
+            else if ((boardCopy[r][c] > 4 && boardCopy[r][c] < 9) || boardCopy[r][c] == 0)
                 playerd++;
             
         }

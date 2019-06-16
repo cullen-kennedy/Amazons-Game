@@ -50,12 +50,17 @@ io.on('connection', (socket) => {
     });
 
     socket.on('gameOver', (data) => {
-        socket.broadcast.to(data.room).emit('end', {status: data.status});
+        socket.broadcast.to(data.room).emit('oppEnd', {status: data.status});
+    })
+
+    socket.on('endGame', (data) => {
+        socket.broadcast.to(data.room).emit('oppEndGame', {message: data.message});
     })
 
     //Need to force the other player to leave if other disconnects... for now.
     //Later maybe allow the game to be rejoinable
     socket.on('disconnect', () => {
+        console.log("disconnected");
         socket.broadcast.to('room-'+rooms).emit('disconnected');
     } )
 

@@ -7,6 +7,7 @@ export default class game {
         this.roomID = roomId;
         this.empty = 0;
         this.arrow = 9;
+        this.endGameBool = false;
         this.player = player;
         this.player1IDs = [1,2,3,4];
         this.player2IDs = [5,6,7,8];
@@ -193,4 +194,107 @@ export default class game {
         return true;
     }
 
+    endGame(){
+        let boardCopy = this.board.map((arr) => {
+            return arr.slice();
+        });
+
+        //Quick fix to determine player
+        var c, e;
+        if (this.player.pieces.has(1)){
+            c = 1;
+            e = 4
+        }
+        else{
+            c = 5;
+            e = 8;
+        }
+        for (; c <= e; c++) {
+            if (!(this.FillArea(boardCopy, this.player.pieces.get(c), -c))) {
+                return false;
+            }
+        }
+        return true;
+    }
+    /*
+    * Could use cleaning up, but works
+    */
+    FillArea(boardCopy, value, place) {
+  
+        let queue = [];
+        queue.push(value);
+        
+        boardCopy[value.row][value.col] = place;
+    
+        while (queue.length != 0) {
+     
+            let n = queue.pop();
+            
+            if (n.col+1 < 10) {
+                if (this.player.oppPieces.has(boardCopy[n.row][n.col+1])) {
+                    return false;
+                }else if (this.player.pieces.has(boardCopy[n.row][n.col+1]) || boardCopy[n.row][n.col+1] == 0) {
+                    boardCopy[n.row][n.col+1] = place;
+                    queue.push({row: n.row, col: n.col+1 })
+                }
+            }
+            if (n.col-1 >= 0) {
+                if (this.player.oppPieces.has(boardCopy[n.row][n.col-1])) {
+                    return false;
+                }else if (this.player.pieces.has(boardCopy[n.row][n.col-1]) || boardCopy[n.row][n.col-1] == 0) {
+                    boardCopy[n.row][n.col-1] = place;
+                    queue.push({row: n.row, col: n.col-1 })
+                }
+            }
+            if (n.row+1 < 10) {
+                if (this.player.oppPieces.has(boardCopy[n.row+1][n.col])) {
+                    return false;
+                }else if (this.player.pieces.has(boardCopy[n.row+1][n.col]) || boardCopy[n.row+1][n.col] == 0) {
+                    boardCopy[n.row+1][n.col] = place;
+                    queue.push({row: n.row+1, col: n.col })
+                }
+            }
+            if (n.row-1 >= 0){
+                if (this.player.oppPieces.has(boardCopy[n.row-1][n.col])){
+                    return false;
+                }else if (this.player.pieces.has(boardCopy[n.row-1][n.col]) || boardCopy[n.row-1][n.col] == 0) {
+                    boardCopy[n.row-1][n.col] = place;
+                    queue.push({row: n.row-1, col: n.col })
+                }
+            }
+            if ((n.row-1 >= 0 && n.col-1 >=0)){
+                if (this.player.oppPieces.has(boardCopy[n.row-1][n.col-1])) {
+                    return false;
+                } else if (this.player.pieces.has(boardCopy[n.row-1][n.col-1]) || boardCopy[n.row-1][n.col-1] == 0) {
+                    boardCopy[n.row-1][n.col-1] = place;
+                    queue.push({row: n.row-1, col: n.col-1 })
+                }  
+            }
+            if ((n.row+1 < 10 && n.col+1 < 10)){
+                if (this.player.oppPieces.has(boardCopy[n.row+1][n.col+1])) {
+                    return false;
+                }else if (this.player.pieces.has(boardCopy[n.row+1][n.col+1]) || boardCopy[n.row+1][n.col+1] == 0) {
+                    boardCopy[n.row+1][n.col+1] = place;
+                    queue.push({row: n.row+1, col: n.col+1 })
+                }
+            }
+            if ((n.row+1 < 10 && n.col-1 >=0)){
+                if (this.player.oppPieces.has(boardCopy[n.row+1][n.col-1])) {
+                    return false;
+                }else if (this.player.pieces.has(boardCopy[n.row+1][n.col-1]) || boardCopy[n.row+1][n.col-1] == 0) {
+                    boardCopy[n.row+1][n.col-1] = place;
+                    queue.push({row: n.row+1, col: n.col-1 })
+                }
+            }  
+            if ((n.row-1 >= 0 && n.col+1 < 10) ){
+                if (this.player.oppPieces.has(boardCopy[n.row-1][n.col+1])) {
+                    return false;
+                }else if (this.player.pieces.has(boardCopy[n.row-1][n.col+1]) || boardCopy[n.row-1][n.col+1] == 0) {
+                    boardCopy[n.row-1][n.col+1] = place;
+                    queue.push({row: n.row-1, col: n.col+1 })
+                }
+            }
+        }
+        return true;
+    }
 } 

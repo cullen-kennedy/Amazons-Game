@@ -67,17 +67,7 @@ h1 {
   text-align: center;
 }
 
-#alert {
-  padding: 20 20;
-  margin-left: auto;
-  margin-right: auto;
-  width: 100px;
-  background-color: #f55226;
-  display: none;
-  text-align: center;
-}
-
-#bigAlert {
+.alert {
   position: absolute;
   background-color: #f55226;
   width: 300px;
@@ -91,6 +81,15 @@ h1 {
   margin-top: 10%;
   box-shadow: -0 5px 5px rgba(1, 1, 1, 0.40);
   border: solid 2px black;
+}
+
+.alert-message {
+  background-color: green;
+  margin-top: 10px;
+  margin-left: 30px;
+  width: 200px;
+  height: 100px;
+  color: black;
 }
 
 canvas#canvas {

@@ -6,18 +6,36 @@ import Board from './class/board'
 var socket = io.connect('http://localhost:5000');
 var canvas = new myCanvas();
 var player, game, board, validMoves, gameOver = false;
-var alertBox = document.getElementById("alert");
-var bigAlertBox = document.getElementById("bigAlert")
+var endGameBox = document.getElementById("end-game");
+var bigAlertBox = document.getElementById("big-alert");
 
+
+
+//======================================================================================================
+// Messages
+//======================================================================================================
+
+function endGameMessage(message) {
+    endGameBox.style.display = 'block'
+    let alert_message = endGameBox.querySelector(".alert-message")
+
+    alert_message.innerHTML = message;
+
+    setTimeout(()=>{
+        endGameBox.style.display = 'none'; 
+    }, 5000);   
+}
 
 function bigAlert(message) {
     bigAlertBox.style.display = 'block'
-    bigAlertBox.innerHTML = message;
+    let alert_message = bigAlertBox.querySelector(".alert-message")
+
+    alert_message.innerHTML = message;
 }
 
-/***************************************************************************************
- * Player 1 functions
- */
+//======================================================================================================
+// Player 1 functions
+//======================================================================================================
 
  //New game
 $('#new').on('click', () => {
@@ -56,9 +74,9 @@ socket.on ('player1', (data) => {
     });
 });
 
-/****************************************************************************************
- * Player 2 functions
- */
+//======================================================================================================
+// Player 2 functions
+//======================================================================================================
 
 //Join created game
 $('#join').on('click', () => {
@@ -95,21 +113,23 @@ socket.on ('player2', (data) => {
 });
 
 
+//=====================================================================================================
 
-/**************************************************************************
-* Game Controller functions
-* Game class controls the logic while board class controls the
-* visuals. Player class also keeps track of own pieces, opponent
-* pieces and selected piece
-**************************************************************************/
+//======================================================================================================
+// Game Controller functions
+// Game class controls the logic while board class controls the
+// visuals. Player class also keeps track of own pieces, opponent
+// pieces and selected piece
+//======================================================================================================
 
-/**
- * Opponent functions to update board with data from server
- */
+
+
+//======================================================================================================
+// Opponent functions to update board with data from server
+//======================================================================================================
 
 //Update Move
 socket.on('oppMove', (data) => {
-    console.log('oppmove');
     board.resetBlock(player.oppPieces.get(data.selID).col, player.oppPieces.get(data.selID).row)  
     game.oppMove(data.selID, data.col, data.row)
     board.oppMove(data.col, data.row);
@@ -123,13 +143,28 @@ socket.on('oppShoot', (data) => {
     player.myTurnStart = true;
 })
 
-socket.on('end', (data) => {
+socket.on('oppEndGame', (data) => {
+    game.endGameBool = true;
+    endGameMessage(data.message);   
+}
+)
+
+socket.on('oppEnd', (data) => {
     bigAlert(data.status)
+    socket.disconnect();
 })
 
+//Just kick the players if one disconnects,
+//Can be improved later (allow same player to rejoin)
 socket.on('disconnected', () => {
     bigAlert("Your opponent disconnected")
+    socket.disconnect();
 })
+
+//===========================================================================
+// Game Master
+//===========================================================================
+
 //The event listener is always listening, 
 //but the action that is takes depends on player variables
 function processClick(x, y) {
@@ -185,14 +220,29 @@ function processClick(x, y) {
                     col: xcoord,
                     room: game.roomID
                 });
-                if (game.win())  {
-                    socket.emit('gameOver', {room: game.roomID, status: 'You Lost'} )
-                    bigAlert('You Won')
+                //Add exception for if endgame and game end are reached at same time
+                if (!game.endGameBool)
+                {
+                    if (game.endGame())  {
+                        game.endGameBool = true;
+                        socket.emit('endGame', {room: game.roomID, message: "Endgame Reached"} )
+                        endGameMessage("Endgame Reached");
+                    }   
                 }
-                else if (game.lose()) {
-                    socket.emit('gameOver', {room: game.roomID, status: 'You Won'} )
-                    bigAlert('You Lost')
+                else
+                {
+                    if (game.win())  {
+                        socket.emit('gameOver', {room: game.roomID, status: 'You Lost'} )
+                        bigAlert('You Won')
+                        socket.disconnect();
+                    }
+                    else if (game.lose()) {
+                        socket.emit('gameOver', {room: game.roomID, status: 'You Won'} )
+                        bigAlert('You Lost')
+                        socket.disconnect();
+                    }
                 }
+                
                 player.myShoot = false;
             }
             else {
