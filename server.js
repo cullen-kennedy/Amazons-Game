@@ -54,7 +54,10 @@ io.on('connection', (socket) => {
     })
 
     socket.on('endGame', (data) => {
-        socket.broadcast.to(data.room).emit('oppEndGame', {message: data.message});
+        socket.broadcast.to(data.room).emit('oppEndGame', {score: data.score, winning: data.winning});
+    })
+    socket.on('continue', (data) => {
+        socket.broadcast.to(data.room).emit('continueGame');
     })
 
     //Need to force the other player to leave if other disconnects... for now.

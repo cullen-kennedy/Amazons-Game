@@ -15,23 +15,58 @@ var bigAlertBox = document.getElementById("big-alert");
 // Messages
 //======================================================================================================
 
-function endGameMessage(message) {
+//query selector not used very nicely
+function endGameMessage(score, winning) {
     endGameBox.style.display = 'block'
-    let alert_message = endGameBox.querySelector(".alert-message")
+    let alertMessage = endGameBox.querySelector(".alert-message");
+    let exitAlert = endGameBox.querySelector(".exit-alert");
+    console.log(winning)
+    console.log(score)
+    if (winning) {
+        exitAlert.style.display = 'none';
+        endGameBox.querySelector("#continue-endgame").style.display = 'none';
+    } else {
+        endGameBox.querySelector("#wait-concede").style.display = 'none';
+    }
 
-    alert_message.innerHTML = message;
-
-    setTimeout(()=>{
-        endGameBox.style.display = 'none'; 
-    }, 5000);   
+    alertMessage.innerHTML = score;
+ 
 }
 
 function bigAlert(message) {
+    endGameBox.style.display = 'none'
     bigAlertBox.style.display = 'block'
-    let alert_message = bigAlertBox.querySelector(".alert-message")
+    let alertMessage = bigAlertBox.querySelector(".alert-message")
 
-    alert_message.innerHTML = message;
+    alertMessage.innerHTML = message;
 }
+
+//need for jquery?
+$(".exit-alert").on('click', function() {
+        console.log(this)
+       let exittype = this.id;
+       processExit(exittype);
+})
+
+function processExit(exittype) {
+    switch(exittype){
+        case "concede-endgame":
+            endGameBox.style.display = 'none'; 
+            socket.emit('gameOver', {room: game.roomID, status: 'You Won'} )
+            bigAlert('You Lost')
+            socket.disconnect();
+            break;
+        case "reload":
+            location.reload();
+            break;
+        case "continue-endgame":
+            endGameBox.style.display = 'none';
+            socket.emit('continue', {room: game.roomID});
+    }
+}
+
+
+
 
 //======================================================================================================
 // Player 1 functions
@@ -110,6 +145,7 @@ socket.on ('player2', (data) => {
     canvas.canvas.addEventListener('click', (e)=> {       
         processClick(e.clientX, e.clientY);
     });
+
 });
 
 
@@ -145,13 +181,17 @@ socket.on('oppShoot', (data) => {
 
 socket.on('oppEndGame', (data) => {
     game.endGameBool = true;
-    endGameMessage(data.message);   
+    endGameMessage(data.score, data.winning);   
 }
 )
 
 socket.on('oppEnd', (data) => {
     bigAlert(data.status)
     socket.disconnect();
+})
+
+socket.on('continueGame', () => {
+    endGameBox.style.display = 'none'
 })
 
 //Just kick the players if one disconnects,
@@ -224,9 +264,31 @@ function processClick(x, y) {
                 if (!game.endGameBool)
                 {
                     if (game.endGame())  {
-                        game.endGameBool = true;
-                        socket.emit('endGame', {room: game.roomID, message: "Endgame Reached"} )
-                        endGameMessage("Endgame Reached");
+
+                        console.log(player.EndCount);
+                        
+                        //Check if endgame isn't actually just game over
+                        if (game.win())  {
+                            socket.emit('gameOver', {room: game.roomID, status: 'You Lost'} )
+                            bigAlert('You Won')
+                            socket.disconnect();
+                        }
+                        else if (game.lose()) {
+                            socket.emit('gameOver', {room: game.roomID, status: 'You Won'} )
+                            bigAlert('You Lost')
+                            socket.disconnect();
+                        }else{
+
+                            game.endGameBool = true;
+                            if (player.EndCount > player.oppEndCount) {
+                                socket.emit('endGame', {room: game.roomID, score: player.oppEndCount, winning: false} )
+                                endGameMessage(player.EndCount, true);
+                            }else {
+                                socket.emit('endGame', {room: game.roomID, score: player.oppEndCount, winning: true} )
+                                endGameMessage(player.EndCount, false);
+                            }
+                            
+                        }
                     }   
                 }
                 else

@@ -21,6 +21,8 @@ export default class player {
                          };
         this.pieces =  new Map();
         this.oppPieces =  new Map();
+        this.EndCount;
+        this.oppEndCount;
 
            
     }

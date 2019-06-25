@@ -214,6 +214,7 @@ export default class game {
                 return false;
             }
         }
+        this.count(boardCopy)
         return true;
     }
     /*
@@ -296,5 +297,39 @@ export default class game {
             }
         }
         return true;
+    }
+
+    count(boardCopy) {
+	
+        let player1 = 0;
+        let player2 = 0;
+        if (this.player.pieces.has(1)) {
+            for (let r = 0; r < 10; r++){
+                for (let c = 0; c < 10; c++){
+                    if ((boardCopy[r][c] < 0 && boardCopy[r][c] > -5))
+                        player1++;
+                    else if ((boardCopy[r][c] > 4 && boardCopy[r][c] < 9) || boardCopy[r][c] == 0)
+                        player2++;
+                    
+                }
+            }
+
+        } else {
+            for (let r = 0; r < 10; r++){
+                for (let c = 0; c < 10; c++){
+                    if ((boardCopy[r][c] < -4 && boardCopy[r][c] > -9))
+                        player2++;
+                    else if ((boardCopy[r][c] >= 0 && boardCopy[r][c] < 9))
+                        player1++;
+                }
+            }
+        }
+   
+        player1 -= 4;
+        player2 -= 4;
+
+        this.player.EndCount = this.player.pieces.has(1) ? player1 : player2;
+        this.player.oppEndCount = this.player.oppPieces.has(1) ? player1 : player2;
+   
     }
 } 

@@ -71,7 +71,7 @@ h1 {
   position: absolute;
   background-color: #f55226;
   width: 300px;
-  height: 200px;
+  height: 300px;
   z-index: 10;
   font-size: 1.5em;
   font-weight: bold;
@@ -87,10 +87,19 @@ h1 {
   background-color: green;
   margin-top: 10px;
   margin-left: 30px;
-  width: 200px;
+  width: 250px;
   height: 100px;
   color: black;
 }
+.exit-alert {
+  color: black;
+  height: 30px;
+  width: 30px;
+}
+  div.exit-alert:hover {
+    background-color: blue;
+    cursor: pointer;
+  }
 
 canvas#canvas {
   position: relative;
