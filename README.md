@@ -1,6 +1,6 @@
-### Game of the Amazons
+# Game of the Amazons
 
-[Play the Game!](https://www.google.com)
+[Play the Game!](https://amazons-the-game.herokuapp.com)
 
 This is my javascript Amazons Game built with node.js, socket.io, and express.
 
@@ -14,7 +14,7 @@ Apart from major changes specified in the road map, there will be small but nece
 3. Room Management improvements including available room selection 
 4. AI PLayer
 
-# Requirements
+### Requirements
 
 You can set up a build environment using Babel and Webpack.
 node.js with npm is also required
