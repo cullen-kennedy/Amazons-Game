@@ -15,14 +15,16 @@ app.get('/', function (request, response) {
 });
 
 io.on('connection', (socket) => {
-    
+    var currentRoomId;
     socket.on('createGame', (data) => {
-        socket.join('room-' + ++rooms);
-        socket.emit('newGame', {name: data.name, room: 'room-' + rooms})
+        currentRoomId = 'room-' + ++rooms;
+        socket.join(currentRoomId);
+        socket.emit('newGame', {name: data.name, room: currentRoomId})
     });
 
     socket.on('joinGame', (data) => {
         var room = io.nsps['/'].adapter.rooms[data.room];
+        currentRoomId = data.room
         if ( room && room.length == 1) {
             socket.join(data.room);
             socket.broadcast.to(data.room).emit('player1', {name: data.name, room: data.room});
@@ -63,8 +65,7 @@ io.on('connection', (socket) => {
     //Need to force the other player to leave if other disconnects... for now.
     //Later maybe allow the game to be rejoinable
     socket.on('disconnect', () => {
-        console.log("disconnected");
-        socket.broadcast.to('room-'+rooms).emit('disconnected');
+        socket.broadcast.to(currentRoomId).emit('disconnected');
     } )
 
 });
