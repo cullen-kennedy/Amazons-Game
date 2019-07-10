@@ -2,7 +2,7 @@
 
 [Play the Game!](https://amazons-the-game.herokuapp.com)
 
-This is my javascript Amazons Game built with node.js, socket.io, and express.
+This is my JavaScript Amazons Game built with node.js, socket.io, and express.
 
 Read more about *Game of the Amazons* [here!](https://en.wikipedia.org/wiki/Game_of_the_Amazons)
 
@@ -12,7 +12,7 @@ Apart from major changes specified in the road map, there will be small but nece
 1. Allow Player to rejoin existing game after disconnection
 2. Chatbox
 3. Room Management improvements including available room selection 
-4. AI PLayer
+4. AI Player
 
 ### Requirements
 
