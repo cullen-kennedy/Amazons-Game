@@ -8,14 +8,14 @@
     <h1>AMAZONS</h1>
     <div id="menu" >
       <div class="menu-form" id="new-form">
-        <p>Start a Game</p>
+        <p>Start Game</p>
         <input type="text" name="name" id="nameNew" placeholder="Enter your name" required>
         <button id="new">New Game</button>
       </div>
       <div class="menu-form" id="join-form">
-         <p>Join a Game</p>
+        <p>Join Game</p>
         <input type="text" name="name" id="nameJoin" placeholder="Enter your name" required>
-        <input type="text" name="room" id="room" placeholder="Enter Game ID" required>
+        <input type="text" name="room" id="room" placeholder="Enter Room ID" required>
         <button id="join">Join Game</button>
       </div>
     </div>	
@@ -23,20 +23,19 @@
       <p id="roomid"></p>
         <p id="message"></p>
     </div>
-  <div class="alert" id="big-alert">
-    <div class="alert-message"></div>
-    <div class="exit-alert" id="reload">x</div>
-  </div>
-  <div class="alert" id="end-game">
-    <div class="alert-message"></div>
-    <div id="wait-concede">Waiting for Other player</div>
-    <div class="exit-alert" id="concede-endgame">Concede</div>
-    <div class="exit-alert" id="continue-endgame">Play on</div>
-  </div>
-  <canvas id="canvas"></canvas>
-  <script src='node_modules/jquery/dist/jquery.min.js'></script>
-  <script type="application/javascript" src="http://localhost:5000/socket.io/socket.io.js"></script>
-  <script type="application/javascript" src="/dist/main.js"></script>
-    
+  	<div class="alert" id="big-alert">
+    	<div class="alert-message"></div>
+    	<div class="exit-alert" id="reload">Exit Game</div>
+  	</div>
+  		<div class="alert" id="end-game">
+    		<div class="alert-message"></div>
+    		<div id="wait-concede" class="alert-message">Waiting for Other player</div>
+    		<div class="exit-alert" id="concede-endgame">Concede</div>
+    		<div class="exit-alert" id="continue-endgame">Play on</div>
+  	</div>
+  	<canvas id="canvas">Your browser does not support canvas</canvas>
+    <script src='node_modules/jquery/dist/jquery.min.js'></script>
+  	<script type="application/javascript" src="http://localhost:5000/socket.io/socket.io.js"></script>
+  	<script type="application/javascript" src="/dist/main.js"></script> 
   </body>
 </html>

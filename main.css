@@ -11,7 +11,7 @@ html, body {
 
 body {
   margin:0; padding:0;
-  background-image: linear-gradient(green, yellow);
+  background-color: #f8f8ff;
 }
 
 h1 {
@@ -20,8 +20,8 @@ h1 {
 
 #menu {
     width: 85%;
-    border: solid #fdf9f91c;
-    display:flex;
+    border: solid #fdf9f9;
+    display: flex;
     flex-flow: row wrap;
     justify-content: space-evenly;
     background-color: #171707;
@@ -53,51 +53,62 @@ h1 {
 }
 
 .menu-form > button {
-   background-color:whitesmoke;
+   background-color: whitesmoke;
 }
 
 .room-info {
   margin-left: auto;
 }
 #roomid {
+
   text-align: center;
 }
 
 #message {
+  margin-top: 5px;
+  margin-bottom: 5px;  	
   text-align: center;
 }
 
 .alert {
   position: absolute;
-  background-color: #f55226;
+  background-color: #dc3545;
   width: 300px;
-  height: 300px;
   z-index: 10;
   font-size: 1.5em;
   font-weight: bold;
   display: none;
-  margin-left: 36%;
-  margin-right: 36%;
+  left: 0;
+  right: 0;	
+  margin-left: auto;
+  margin-right: auto;
   margin-top: 10%;
+  padding-top: 10px;
+  padding: 20px 20px 20px 20px;
   box-shadow: -0 5px 5px rgba(1, 1, 1, 0.40);
   border: solid 2px black;
 }
 
 .alert-message {
-  background-color: green;
-  margin-top: 10px;
-  margin-left: 30px;
-  width: 250px;
-  height: 100px;
+  background-color: #ffc107;
+  text-align: center;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border-style: solid;
   color: black;
+  white-space: pre-wrap;
 }
 .exit-alert {
+  background-color: #d3d3d3;	
   color: black;
-  height: 30px;
-  width: 30px;
+  box-shadow: 0 0 5px -1px rgba(0,0,0,0.4);
+  border-style: solid;
+  margin-top: 5px;
+  text-align: center;
 }
   div.exit-alert:hover {
-    background-color: blue;
+    background-color: #28a745;
+	box-shadow: 0 0 5px -1px rgba(0,0,0,0.8);
     cursor: pointer;
   }
 

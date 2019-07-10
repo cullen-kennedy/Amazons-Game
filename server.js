@@ -54,7 +54,7 @@ io.on('connection', (socket) => {
     })
 
     socket.on('endGame', (data) => {
-        socket.broadcast.to(data.room).emit('oppEndGame', {score: data.score, winning: data.winning});
+        socket.broadcast.to(data.room).emit('oppEndGame', {myScore: data.oppScore, oppScore: data.myScore, winning: data.winning});
     })
     socket.on('continue', (data) => {
         socket.broadcast.to(data.room).emit('continueGame');

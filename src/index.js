@@ -15,35 +15,38 @@ var bigAlertBox = document.getElementById("big-alert");
 // Messages
 //======================================================================================================
 
-//query selector not used very nicely
-function endGameMessage(score, winning) {
+function endGameMessage(myScore, oppScore, winning) {
     endGameBox.style.display = 'block'
     let alertMessage = endGameBox.querySelector(".alert-message");
     let exitAlert = endGameBox.querySelector(".exit-alert");
-    console.log(winning)
-    console.log(score)
     if (winning) {
         exitAlert.style.display = 'none';
         endGameBox.querySelector("#continue-endgame").style.display = 'none';
     } else {
         endGameBox.querySelector("#wait-concede").style.display = 'none';
     }
-
-    alertMessage.innerHTML = score;
+	//Message formatting is kind of messy
+    alertMessage.textContent = "ENDGAME\r\nApprox. Moves left: " + myScore + "\r\n\r\nApprox. Opponent\r\nMoves Left: " + oppScore;
  
 }
 
-function bigAlert(message) {
+function bigAlert(message, allowexit) {
+	if (allowexit)
+	{
+		document.getElementById("reload").style.display = 'block';
+	}
+	else
+	{
+		document.getElementById("reload").style.display = 'none';
+	}
     endGameBox.style.display = 'none'
     bigAlertBox.style.display = 'block'
     let alertMessage = bigAlertBox.querySelector(".alert-message")
 
-    alertMessage.innerHTML = message;
+    alertMessage.textContent = message;
 }
 
-//need for jquery?
 $(".exit-alert").on('click', function() {
-        console.log(this)
        let exittype = this.id;
        processExit(exittype);
 })
@@ -53,8 +56,7 @@ function processExit(exittype) {
         case "concede-endgame":
             endGameBox.style.display = 'none'; 
             socket.emit('gameOver', {room: game.roomID, status: 'You Won'} )
-            bigAlert('You Lost')
-            socket.disconnect();
+            bigAlert('You Lost', true)
             break;
         case "reload":
             location.reload();
@@ -66,8 +68,6 @@ function processExit(exittype) {
 }
 
 
-
-
 //======================================================================================================
 // Player 1 functions
 //======================================================================================================
@@ -77,6 +77,7 @@ $('#new').on('click', () => {
     var name = $('#nameNew').val();
     player = new Player(name, 'images/queen.jpg', 'images/queen2.jpg', true);
     socket.emit('createGame', {name: name}); //server.js on.createGame
+	bigAlert("Waiting for player to join", true)
      //first player with name and initial starting point
 });
 
@@ -88,8 +89,8 @@ socket.on('newGame', (data) => {
     board = new Board(canvas.ctx, data.room, player);
     player.setup(game.player1IDs, game.player1Pos, game.player2IDs, game.player2Pos);
 
-    document.getElementById("roomid").innerHTML = 'Room: ' + data.room; 
-    document.getElementById("message").innerHTML = 'Player: ' + player.name;
+    document.getElementById("roomid").textContent = 'Room ID: ' + data.room; 
+    document.getElementById("message").textContent = 'Player: ' + player.name;
     
     board.displayBoard();
 });
@@ -100,9 +101,12 @@ socket.on('newGame', (data) => {
 socket.on ('player1', (data) => {
     //Default value are hardcoded in game and player class
     //Images have loaded by the time get here?
-
+	  document.getElementById("menu").style.display = 'none'
+	  bigAlertBox.style.display = 'none'
       board.default();
       board.oppDefault();
+	  bigAlert(data.name + " has joined\r\nYour Move!", false)
+	  setTimeout(() => {bigAlertBox.style.display = 'none'}, 2000)
     
     canvas.canvas.addEventListener('click', (e) => {       
         processClick(e.clientX, e.clientY);
@@ -125,14 +129,19 @@ $('#join').on('click', () => {
 
 //Displays board and does the same as on.'player1'
 socket.on ('player2', (data) => {
+	
+	document.getElementById("menu").style.display = 'none'
 
     game = new Game(data.room, player);
     board = new Board(canvas.ctx, data.room, player);
     board.displayBoard();
     player.setup(game.player2IDs, game.player2Pos, game.player1IDs, game.player1Pos);
     
-    document.getElementById("roomid").innerHTML = 'Room: ' + data.room; 
-    document.getElementById("message").innerHTML = 'Player: ' + player.name;
+    document.getElementById("roomid").textContent = 'Room ID: ' + data.room; 
+    document.getElementById("message").textContent = 'Player: ' + player.name;
+	
+	bigAlert("Welcome to: " + data.room + "\r\nOpponents Move!")
+	setTimeout(() => {bigAlertBox.style.display = 'none'}, 2000)
    
     player.image.onload = () => {
         board.default();
@@ -159,7 +168,6 @@ socket.on ('player2', (data) => {
 //======================================================================================================
 
 
-
 //======================================================================================================
 // Opponent functions to update board with data from server
 //======================================================================================================
@@ -177,17 +185,20 @@ socket.on('oppShoot', (data) => {
     game.oppShoot(data.col, data.row)
     board.oppShoot(data.col, data.row)
     player.myTurnStart = true;
+	board.flashTurn();
+	setTimeout(() =>{
+		board.resetFlashTurn();
+	}, 500)
 })
 
 socket.on('oppEndGame', (data) => {
     game.endGameBool = true;
-    endGameMessage(data.score, data.winning);   
+    endGameMessage(data.myScore, data.oppScore, data.winning);   
 }
 )
 
 socket.on('oppEnd', (data) => {
-    bigAlert(data.status)
-    socket.disconnect();
+    bigAlert(data.status, true)
 })
 
 socket.on('continueGame', () => {
@@ -197,8 +208,7 @@ socket.on('continueGame', () => {
 //Just kick the players if one disconnects,
 //Can be improved later (allow same player to rejoin)
 socket.on('disconnected', () => {
-    bigAlert("Your opponent disconnected")
-    socket.disconnect();
+    bigAlert("Your opponent disconnected", true)
 })
 
 //===========================================================================
@@ -260,7 +270,7 @@ function processClick(x, y) {
                     col: xcoord,
                     room: game.roomID
                 });
-                //Add exception for if endgame and game end are reached at same time
+
                 if (!game.endGameBool)
                 {
                     if (game.endGame())  {
@@ -270,22 +280,20 @@ function processClick(x, y) {
                         //Check if endgame isn't actually just game over
                         if (game.win())  {
                             socket.emit('gameOver', {room: game.roomID, status: 'You Lost'} )
-                            bigAlert('You Won')
-                            socket.disconnect();
+                            bigAlert('You Won', true)
                         }
                         else if (game.lose()) {
                             socket.emit('gameOver', {room: game.roomID, status: 'You Won'} )
-                            bigAlert('You Lost')
-                            socket.disconnect();
+                            bigAlert('You Lost', true)
                         }else{
 
                             game.endGameBool = true;
                             if (player.EndCount > player.oppEndCount) {
-                                socket.emit('endGame', {room: game.roomID, score: player.oppEndCount, winning: false} )
-                                endGameMessage(player.EndCount, true);
+                                socket.emit('endGame', {room: game.roomID, myScore: player.EndCount, oppScore: player.oppEndCount, winning: false} )
+                                endGameMessage(player.EndCount, player.oppEndCount, true);
                             }else {
-                                socket.emit('endGame', {room: game.roomID, score: player.oppEndCount, winning: true} )
-                                endGameMessage(player.EndCount, false);
+                                socket.emit('endGame', {room: game.roomID, myScore: player.EndCount, oppScore: player.oppEndCount, winning: true} )
+                                endGameMessage(player.EndCount, player.oppEndCount, false);
                             }
                             
                         }
@@ -295,13 +303,11 @@ function processClick(x, y) {
                 {
                     if (game.win())  {
                         socket.emit('gameOver', {room: game.roomID, status: 'You Lost'} )
-                        bigAlert('You Won')
-                        socket.disconnect();
+                        bigAlert('You Won', true)
                     }
                     else if (game.lose()) {
                         socket.emit('gameOver', {room: game.roomID, status: 'You Won'} )
-                        bigAlert('You Lost')
-                        socket.disconnect();
+                        bigAlert('You Lost', true)
                     }
                 }
                 

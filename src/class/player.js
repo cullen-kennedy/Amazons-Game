@@ -36,8 +36,6 @@ export default class player {
         this.pieces.set(ID[2], startPos[2])
         this.pieces.set(ID[3], startPos[3])
 
-        //This might not be needed either, but I'll keep it and update it 
-        //it for now just incase :)
         this.oppPieces.set(oppID[0], oppStartPos[0])
         this.oppPieces.set(oppID[1], oppStartPos[1])
         this.oppPieces.set(oppID[2], oppStartPos[2])
