@@ -1,8 +1,8 @@
 {
   "name": "Amazons",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Online Amazons Game",
+  "main": "dist/main.js",
   "scripts": {
     "test": "node ./test/game_end.js",
     "build": "webpack",
