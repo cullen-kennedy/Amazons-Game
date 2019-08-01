@@ -28,7 +28,7 @@ io.on('connection', (socket) => {
         if ( room && room.length == 1) {
             socket.join(data.room);
             socket.broadcast.to(data.room).emit('player1', {name: data.name, room: data.room});
-            socket.emit('player2', {name: data.name, room: data.room});
+            socket.emit('player2', {name: data.name, room: currentRoomId});
         }
         else {
             socket.emit('err', {message: 'The room is full'});
@@ -36,7 +36,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('playersMove', (data) => {
-        socket.broadcast.to(data.room).emit('oppMove', {
+        socket.broadcast.to(currentRoomId).emit('oppMove', {
             selID: data.selID,
             row: data.newrow,
             col: data.newcol,
@@ -44,22 +44,21 @@ io.on('connection', (socket) => {
     });
 
     socket.on('playersShoot', (data) => {
-        socket.broadcast.to(data.room).emit('oppShoot', {
+        socket.broadcast.to(currentRoomId).emit('oppShoot', {
             row: data.row,
             col: data.col,
-            room: data.room
         });
     });
 
     socket.on('gameOver', (data) => {
-        socket.broadcast.to(data.room).emit('oppEnd', {status: data.status});
+        socket.broadcast.to(currentRoomId).emit('oppEnd', {status: data.status});
     })
 
     socket.on('endGame', (data) => {
-        socket.broadcast.to(data.room).emit('oppEndGame', {myScore: data.oppScore, oppScore: data.myScore, winning: data.winning});
+        socket.broadcast.to(currentRoomId).emit('oppEndGame', {myScore: data.oppScore, oppScore: data.myScore, winning: data.winning});
     })
-    socket.on('continue', (data) => {
-        socket.broadcast.to(data.room).emit('continueGame');
+    socket.on('continue', () => {
+        socket.broadcast.to(currentRoomId).emit('continueGame');
     })
 
     //Need to force the other player to leave if other disconnects... for now.

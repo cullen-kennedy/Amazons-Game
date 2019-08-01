@@ -1,186 +1,212 @@
-/**
- * This class takes care of the games logic
- */
+import Player from './player'
+import Board from './board'
+import Messages from './messages'
 
+/**
+ * Game class is responsible for constructing the board and players
+ * It is also responsible for updating the display on the "success" response from the player 
+ * who interacts with the logical board
+ */
 export default class game {
-    constructor(roomId, player) {
-        this.roomID = roomId;
-        this.empty = 0;
-        this.arrow = 9;
+    constructor(socket) {
+
         this.endGameBool = false;
-        this.player = player;
-        this.player1IDs = [1,2,3,4];
-        this.player2IDs = [5,6,7,8];
-        this.player1Pos = [
-                            {
-                                "row": 3,
-                                "col": 0
-                            },
-                            {
-                                "row": 0,
-                                "col": 3
-                            },
-                            {
-                                "row": 0,
-                                "col": 6
-                            },
-                            {
-                                "row": 3,
-                                "col": 9
-                            }
-        ];
-        this.player2Pos = [
-                            {
-                                "row": 6,
-                                "col": 0
-                            },
-                            {
-                                "row": 9,
-                                "col": 3
-                            },
-                            {
-                                "row": 9,
-                                "col": 6
-                            },
-                            {
-                                "row": 6,
-                                "col": 9
-                            }
-        ];                
+        this.validMoves
+        this.board;
+        this.player;
+        this.socket = socket
+
+        this.socket.on('oppMove', (data) => {
+            let oppPieces = this.player.oppPieces
+            this.board.display.resetBlock(oppPieces.get(data.selID).col, oppPieces.get(data.selID).row) 
+            this.board.oppMove(this.player.oppPieces, data.selID, data.col, data.row)
+            this.board.display.oppMove(this.player.oppImage, data.col, data.row)
+        });
         
-        this.board = [
-            [0,0,0,2,0,0,3,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0],
-            [1,0,0,0,0,0,0,0,0,4],
-            [0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0],
-            [5,0,0,0,0,0,0,0,0,8],
-            [0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,6,0,0,7,0,0,0]   
-        ];
-    
-        this.moves = 0;
+        //Update opponents arrow
+        this.socket.on('oppShoot', (data) => {
+            this.board.oppShoot(data.col, data.row)
+            this.board.display.oppShoot(data.col, data.row)
+            this.player.turn = "moveStart"
+        })
+        
+        this.socket.on('oppEndGame', (data) => {
+            this.endGameBool = true;
+            Messages.endGameMessage(data.myScore, data.oppScore, data.winning);   
+        }
+        )
+        
+        this.socket.on('oppEnd', (data) => {
+            Messages.bigAlert(data.status, true)
+        })
+        
+        this.socket.on('continueGame', () => {
+            let endGameBox = document.getElementById("end-game");
+            endGameBox.style.display = 'none'
+        })
+
+        this.socket.on('disconnected', () => {
+            Messages.bigAlert("Your opponent disconnected", true)
+        })
     } 
 
-    moveEnd(x, y) {
-
-        let sel = this.player.selection;
-
-        if (this.board[y][x] == this.empty){
-            this.board[sel.row][sel.col] = 0;
-            this.player.pieces.set(sel.ID, {row:y, col:x});
-            this.board[y][x] = sel.ID;
-            return true
-        } else {
-            return false
-        }       
+    setupPlayer(creator) {
+        this.player = new Player(creator, this.board)
     }
 
-    oppMove(ID, x, y) {
-
-        let oppPieces = this.player.oppPieces
-
-        this.board[oppPieces.get(ID).row][oppPieces.get(ID).col] = 0;
-        oppPieces.set(ID, {row:y, col:x});
-        this.board[y][x] = ID;
+    setupPieces() {
+        this.player.setupPlayerPieces("./images/queen.jpg", "./images/queen2.jpg")
+        this.player.setupOppPieces("./images/queen.jpg", "./images/queen2.jpg")
     }
 
-    shoot(x, y) {
-        if (this.board[y][x] == this.empty){
-            this.board[y][x] = this.arrow;
-            //print the board to check
-            return true;           
-        }
-        else {
-            return false;
-        }    
+    setupBoard(x, y) {
+        this.board = new Board()
+        this.board.setupBoard(x, y)
     }
 
-    oppShoot(x, y) {
-        this.board[y][x] = this.arrow;
+
+    startingPositions() {
+        this.board.defaultPositions(this.player)   
     }
 
-    /**
-     * 
-     * Checks path for move and shoot, and returns an array of available positions
-     * The calling function, using x and y
-     * checks if it exists in the returned array
-     * 
-     */
-    checkPath(x, y) {
-        let validMoves = [];
-       
-        let sel = x + (y*10);
-
-        //First up
-        let up = sel - 10; 
-        while(up >= 0 && this.board[(~~(up/10))][up % 10] == 0) {
-            validMoves.push(up);
-            up -= 10;
-        }
-
-        //Then down
-        let down = sel + 10; 
-        while(down <= 99 && this.board[(~~(down/10))][down % 10] == 0) {
-            validMoves.push(down);
-            down += 10;
-        }
-
-        //yadda yadda
-        let right = sel + 1;
-        while((right % 10 != 0) && this.board[(~~(right/10))][right % 10] == 0) {
-            validMoves.push(right);
-            right++;
-        }
-
-        let left = sel - 1;
-        while((left % 10 != 9) && this.board[(~~(left/10))][left % 10] == 0) {
-            validMoves.push(left);
-            left--;
-        }
-
-        let upleftx = x-1;
-        let uplefty = y-1;
-        while (upleftx >= 0 && uplefty >= 0 && this.board[uplefty][upleftx] == 0) {
-            validMoves.push(upleftx + (uplefty * 10));
-            upleftx--;
-            uplefty--;
-        }
-
-
-        let uprightx = x+1;
-        let uprighty = y-1;
-        while (uprightx <= 9  && uprighty >= 0 && this.board[uprighty][uprightx] == 0) {
-            validMoves.push(uprightx + (uprighty * 10));
-            uprightx++;
-            uprighty--;
-        }
-
-        let downleftx = x-1;
-        let downlefty = y+1;
-        while (downleftx >= 0  && downlefty <= 9 && this.board[downlefty][downleftx] == 0) {
-            validMoves.push(downleftx + (downlefty * 10));
-            downleftx--;
-            downlefty++;
-        }
-
-        let downrightx = x+1;
-        let downrighty = y+1;
-        while (downrightx <= 9  && downrighty <= 9 && this.board[downrighty][downrightx] == 0) {
-            validMoves.push(downrightx + (downrighty * 10));
-            downrightx++;
-            downrighty++;
-        }
-        return validMoves;
+    start() {
+        this.board.display.canvas.addEventListener('click', (e) => {       
+            this.processClick(e.clientX, e.clientY)
+        });
     }
 
-    //Reusing checkPath to check if player has any valid moves
+    processClick(x, y) {
+        
+        /**
+         * ??????
+         * Game class is responsible for updating the display.
+         * Board class is responsible for initializing the display
+         * Choose one or the other?
+         */
+
+        let display = this.board.display
+        let sel = this.player.selection
+	
+        let rect = display.canvas.getBoundingClientRect();
+        let xcoord = (~~((x - rect.left) / 50));
+        let ycoord = (~~((y - rect.top) / 50));
+	
+        if (this.player.turn === "moveStart")
+        { 
+            let success = this.player.moveStart(xcoord, ycoord) 
+            if (success) {
+                display.moveStart(sel)
+                //Show valid moves for moveEnd turn
+                this.validMoves = this.board.checkPath(xcoord, ycoord)
+                display.validMoves(this.validMoves, 0)
+            } else {
+                display.badMove(xcoord, ycoord)
+                setTimeout(() => {display.resetBorder(xcoord, ycoord)}, 500)
+            }
+        }
+        else if (this.player.turn === "moveEnd")
+        {
+            //Check if another piece has been chosen
+            if (this.player.pieces.has(this.board.getBlockState(xcoord, ycoord))) {
+                display.clearValidMoves(this.validMoves)
+                display.resetBorder(this.player.pieces.get(sel.ID).col, this.player.pieces.get(sel.ID).row)
+                this.player.turn = "moveStart"
+            }
+            else {
+                let success = this.player.moveEnd(xcoord, ycoord, this.validMoves)
+                
+                if (success){
+                    display.clearValidMoves(this.validMoves)
+                    display.moveEnd(this.player.image, xcoord, ycoord)
+                    
+                    this.socket.emit('playersMove', {
+                        selID: sel.ID,
+                        newrow: ycoord,
+                        newcol: xcoord,
+                    });
+                    //Selection was changed
+                    display.resetBlock(sel.col, sel.row)
+                    sel = this.player.selection
+                    
+                    //Show valid moves for shoot turn
+                    this.validMoves = this.board.checkPath(this.player.pieces.get(sel.ID).col, this.player.pieces.get(sel.ID).row)
+                    display.showSelection(this.player.pieces.get(sel.ID).col, this.player.pieces.get(sel.ID).row)
+                    display.validMoves(this.validMoves, 1); 
+                } else {
+                    display.badMove(xcoord, ycoord)
+                        setTimeout(() => {display.resetBorder(xcoord, ycoord)}, 500)
+                }
+            }
+            
+        }
+        else if (this.player.turn === "shoot")
+        { 
+            let success = this.player.shoot(xcoord, ycoord, this.validMoves)
+
+            if (success) {
+                display.clearValidMoves(this.validMoves);
+                display.resetBorder(this.player.pieces.get(sel.ID).col, this.player.pieces.get(sel.ID).row)
+                display.shoot(xcoord, ycoord);
+                this.socket.emit('playersShoot', {
+                    row: ycoord,
+                    col: xcoord,
+                });  
+            } else {
+                display.badMove(xcoord, ycoord)
+                    setTimeout(() => {display.resetBorder(xcoord, ycoord)}, 500)
+            }
+
+            if (!this.endGameBool)
+            {
+                if (this.checkEndGame())  {
+                    
+                    //Check if endgame isn't actually just game over
+                    if (this.win())  {
+                        this.socket.emit('gameOver', {status: 'You Lost'} )
+                        Messages.bigAlert('You Won', true)
+                    }
+                    else if (this.lose()) {
+                        this.socket.emit('gameOver', {status: 'You Won'} )
+                        Messages.bigAlert('You Lost', true)
+                    }else{
+                        this.endGameBool = true;
+                        if (this.player.EndCount > this.player.oppEndCount) {
+                            this.socket.emit('endGame', {myScore: this.player.EndCount, oppScore: this.player.oppEndCount, winning: false} )
+                            Messages.endGameMessage(this.player.EndCount, this.player.oppEndCount, true);
+                        }else {
+                            this.socket.emit('endGame', {myScore: this.player.EndCount, oppScore: this.player.oppEndCount, winning: true} )
+                            Messages.endGameMessage(this.player.EndCount, this.player.oppEndCount, false);
+                        }
+                        
+                    }
+                }   
+            }
+            else
+            {
+                if (this.win())  {
+                    this.socket.emit('gameOver', {room: game.roomID, status: 'You Lost'} )
+                    Messages.bigAlert('You Won', true)
+                }
+                else if (this.lose()) {
+                    this.socket.emit('gameOver', {room: game.roomID, status: 'You Won'} )
+                    Messages.bigAlert('You Lost', true)
+                }
+            }
+            
+        } 
+            
+        else 
+        {
+            display.badMove(xcoord, ycoord)
+                setTimeout(() => {display.resetBorder(xcoord, ycoord)}, 500)
+        }
+    
+    }
+
     lose() {    
       
         for (let [k, v] of this.player.pieces) {
-            if (this.checkPath(v.col, v.row).length > 0)
+            if (this.board.checkPath(v.col, v.row).length > 0)
                 return false
         }
         return true;     
@@ -188,14 +214,14 @@ export default class game {
 
     win() {
         for (let [k, v] of this.player.oppPieces) {
-            if (this.checkPath(v.col, v.row).length > 0)
+            if (this.board.checkPath(v.col, v.row).length > 0)
                 return false
         }
         return true;
     }
 
-    endGame(){
-        let boardCopy = this.board.map((arr) => {
+    checkEndGame(){
+        let boardCopy = this.board.getBlocks().map((arr) => {
             return arr.slice();
         });
 
@@ -210,92 +236,11 @@ export default class game {
             e = 8;
         }
         for (; c <= e; c++) {
-            if (!(this.FillArea(boardCopy, this.player.pieces.get(c), -c))) {
+            if (!(this.board.FillArea(this.player, boardCopy, this.player.pieces.get(c), -c))) {
                 return false;
             }
         }
         this.count(boardCopy)
-        return true;
-    }
-    /*
-    * Could use cleaning up, but works
-    */
-    FillArea(boardCopy, value, place) {
-  
-        let queue = [];
-        queue.push(value);
-        
-        boardCopy[value.row][value.col] = place;
-    
-        while (queue.length != 0) {
-     
-            let n = queue.pop();
-            
-            if (n.col+1 < 10) {
-                if (this.player.oppPieces.has(boardCopy[n.row][n.col+1])) {
-                    return false;
-                }else if (this.player.pieces.has(boardCopy[n.row][n.col+1]) || boardCopy[n.row][n.col+1] == 0) {
-                    boardCopy[n.row][n.col+1] = place;
-                    queue.push({row: n.row, col: n.col+1 })
-                }
-            }
-            if (n.col-1 >= 0) {
-                if (this.player.oppPieces.has(boardCopy[n.row][n.col-1])) {
-                    return false;
-                }else if (this.player.pieces.has(boardCopy[n.row][n.col-1]) || boardCopy[n.row][n.col-1] == 0) {
-                    boardCopy[n.row][n.col-1] = place;
-                    queue.push({row: n.row, col: n.col-1 })
-                }
-            }
-            if (n.row+1 < 10) {
-                if (this.player.oppPieces.has(boardCopy[n.row+1][n.col])) {
-                    return false;
-                }else if (this.player.pieces.has(boardCopy[n.row+1][n.col]) || boardCopy[n.row+1][n.col] == 0) {
-                    boardCopy[n.row+1][n.col] = place;
-                    queue.push({row: n.row+1, col: n.col })
-                }
-            }
-            if (n.row-1 >= 0){
-                if (this.player.oppPieces.has(boardCopy[n.row-1][n.col])){
-                    return false;
-                }else if (this.player.pieces.has(boardCopy[n.row-1][n.col]) || boardCopy[n.row-1][n.col] == 0) {
-                    boardCopy[n.row-1][n.col] = place;
-                    queue.push({row: n.row-1, col: n.col })
-                }
-            }
-            if ((n.row-1 >= 0 && n.col-1 >=0)){
-                if (this.player.oppPieces.has(boardCopy[n.row-1][n.col-1])) {
-                    return false;
-                } else if (this.player.pieces.has(boardCopy[n.row-1][n.col-1]) || boardCopy[n.row-1][n.col-1] == 0) {
-                    boardCopy[n.row-1][n.col-1] = place;
-                    queue.push({row: n.row-1, col: n.col-1 })
-                }  
-            }
-            if ((n.row+1 < 10 && n.col+1 < 10)){
-                if (this.player.oppPieces.has(boardCopy[n.row+1][n.col+1])) {
-                    return false;
-                }else if (this.player.pieces.has(boardCopy[n.row+1][n.col+1]) || boardCopy[n.row+1][n.col+1] == 0) {
-                    boardCopy[n.row+1][n.col+1] = place;
-                    queue.push({row: n.row+1, col: n.col+1 })
-                }
-            }
-            if ((n.row+1 < 10 && n.col-1 >=0)){
-                if (this.player.oppPieces.has(boardCopy[n.row+1][n.col-1])) {
-                    return false;
-                }else if (this.player.pieces.has(boardCopy[n.row+1][n.col-1]) || boardCopy[n.row+1][n.col-1] == 0) {
-                    boardCopy[n.row+1][n.col-1] = place;
-                    queue.push({row: n.row+1, col: n.col-1 })
-                }
-            }  
-            if ((n.row-1 >= 0 && n.col+1 < 10) ){
-                if (this.player.oppPieces.has(boardCopy[n.row-1][n.col+1])) {
-                    return false;
-                }else if (this.player.pieces.has(boardCopy[n.row-1][n.col+1]) || boardCopy[n.row-1][n.col+1] == 0) {
-                    boardCopy[n.row-1][n.col+1] = place;
-                    queue.push({row: n.row-1, col: n.col+1 })
-                }
-            }
-        }
         return true;
     }
 
@@ -331,5 +276,5 @@ export default class game {
         this.player.EndCount = this.player.pieces.has(1) ? player1 : player2;
         this.player.oppEndCount = this.player.oppPieces.has(1) ? player1 : player2;
    
-    }
-} 
+    }   
+}

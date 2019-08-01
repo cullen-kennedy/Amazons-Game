@@ -11,7 +11,7 @@ html, body {
 
 body {
   margin:0; padding:0;
-  background-color: #f8f8ff;
+  background-color: #ccefd6;
 }
 
 h1 {
@@ -20,6 +20,7 @@ h1 {
 
 #menu {
     width: 85%;
+    max-width: 600px;
     border: solid #fdf9f9;
     display: flex;
     flex-flow: row wrap;
@@ -117,7 +118,7 @@ canvas#canvas {
   padding: 0;
   margin-left: auto;
   margin-right: auto;
-  display: block;
+  display: none;
   top: 0;
   bottom: 0;
   left: 0;

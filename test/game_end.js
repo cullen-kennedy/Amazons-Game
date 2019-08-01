@@ -34,7 +34,6 @@ const this.player.oppPieces = new Map();
 pieces();
 
 if (gameOver()) {
-    console.log('game over!')
 	count();
 }
 else 
