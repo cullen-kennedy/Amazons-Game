@@ -5,7 +5,7 @@ var io = require('socket.io') (server);
 
 var rooms = 0;
 
-app.set('port', 5000);
+app.set('port', ( process.env.PORT || 5000 ));
 
 app.use('/', express.static(__dirname +'/'));
 
@@ -69,6 +69,6 @@ io.on('connection', (socket) => {
 
 });
 
-server.listen(5000, function() {
-    console.log('starting server on port 5000');
+server.listen(app.get('port'), function() {
+    console.log('starting server');
 });
