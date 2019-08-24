@@ -24,7 +24,7 @@ h1 {
     border: solid #fdf9f9;
     display: flex;
     flex-flow: row wrap;
-    justify-content: space-evenly;
+    justify-content: space-around;
     background-color: #171707;
     align-items:stretch;
     margin-top: 5px;
@@ -34,7 +34,6 @@ h1 {
 }
 
 .menu-form {
-
   display: flex;
   flex-direction: column;
 }

@@ -47,6 +47,8 @@ export default class game {
 
         this.socket.on('disconnected', () => {
             Messages.bigAlert("Your opponent disconnected", true)
+            //Quick fix for rejoining bug. kick em!
+            this.socket.disconnect();
         })
     } 
 
