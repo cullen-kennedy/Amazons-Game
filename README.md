@@ -7,7 +7,7 @@ This is my JavaScript Amazons Game built with Node.js, socket.io, and express.
 Read more about *Game of the Amazons* [here!](https://en.wikipedia.org/wiki/Game_of_the_Amazons)
 
 ## Roadmap
-1. Local 2 player game - Inludes changing current online opponent player representation 
+1. Local 2 player game option -- in progress 
 2. Allow Player to rejoin existing game after disconnection.
 3. Chatbox
 4. Room management improvements including available room selection. 
