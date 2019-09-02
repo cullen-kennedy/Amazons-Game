@@ -28,6 +28,11 @@ export default class game {
             this.board.oppShoot(data.col, data.row)
             this.board.display.oppShoot(data.col, data.row)
             this.player.turn = "moveStart"
+            this.board.display.flashTurn(this.player);
+	            setTimeout(() =>{
+                    this.board.display.resetFlashTurn(this.player);
+	        }, 500)
+            
         })
         
         this.socket.on('oppEndGame', (data) => {

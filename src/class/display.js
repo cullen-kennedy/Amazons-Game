@@ -108,14 +108,14 @@ export default class display {
         this.resetBorder(x, y)
     }
 	
-	flashTurn() {
-		this.player.pieces.forEach((value, key) =>{
+	flashTurn(player) {
+		player.pieces.forEach((value, key) =>{
 			this.showSelection(value.col, value.row)
 		})
 	}
 	
-	resetFlashTurn() {
-		this.player.pieces.forEach((value, key) =>{
+	resetFlashTurn(player) {
+		player.pieces.forEach((value, key) =>{
 			this.resetBorder(value.col, value.row)
 		})
 	}
